@@ -1570,4 +1570,796 @@ function updateThinkBig(val) {
   d.bars.forEach(function(h, i) {
     var bar = document.createElement('div');
     bar.className = 'scale-bar';
-    bar
+    bar.style.height = h + '%';
+    bar.style.background = colors[i];
+    bar.style.flex = '1';
+    bar.style.borderRadius = '4px 4px 0 0';
+    bar.style.transition = '0.5s ease';
+    bar.style.minHeight = '4px';
+    barsEl.appendChild(bar);
+  });
+  addScore('thinkbig_' + idx);
+}
+
+/* --- SLIDE 11: BIAS FOR ACTION (Terminal) --- */
+var termScenarios = [
+  { desc: "Changing the color of the 'Add to Cart' button from blue to orange.", answer: "2", explain: "Easily reversible — deploy, measure, revert if needed. Classic two-way door." },
+  { desc: "Acquiring a competitor for $2 billion to enter a new market.", answer: "1", explain: "Massive capital commitment, regulatory complexity, culture integration. Very hard to undo — one-way door requiring deep analysis." },
+  { desc: "Launching a new feature behind a feature flag for 5% of users.", answer: "2", explain: "Feature flag = instant rollback. Low risk, high learning. This is Bias for Action in practice." },
+  { desc: "Signing an exclusive 10-year contract with a single cloud provider.", answer: "1", explain: "Lock-in for a decade. Migration costs, dependency risk. One-way door — needs extensive study." },
+  { desc: "Sending a weekly email newsletter to opted-in customers.", answer: "2", explain: "Can adjust frequency, content, or stop anytime. Two-way door — just ship it." },
+  { desc: "Deprecating a public API that thousands of developers depend on.", answer: "1", explain: "Breaking changes destroy trust. Once deprecated and removed, rebuilding that ecosystem is nearly impossible. One-way door." },
+  { desc: "Moving the team standup from 9 AM to 10 AM.", answer: "2", explain: "Try it for a week. If it doesn't work, change it back. Don't spend 3 meetings debating this." },
+  { desc: "Entering the healthcare market with a new pharmacy service.", answer: "1", explain: "Regulatory requirements, licensing, patient safety liability. Extremely difficult to exit once committed. One-way door." }
+];
+var termCurrentScenario = null;
+var termScenariosUsed = [];
+var termCorrect = 0;
+
+function termSubmit() {
+  var input = document.getElementById('termInput');
+  var output = document.getElementById('termOutput');
+  var hint = document.getElementById('termHint');
+  var cmd = input.value.trim().toLowerCase();
+  input.value = '';
+  if (!cmd) return;
+  output.innerHTML += '\n<span class="cmd">λ ' + cmd + '</span>\n';
+  if (cmd === 'help') {
+    output.innerHTML += '<span class="warn">Available commands:</span>\n  <span class="ok">scenario</span>  — Get a new decision to classify\n  <span class="ok">1</span>         — Classify as Type 1 (one-way door)\n  <span class="ok">2</span>         — Classify as Type 2 (two-way door)\n  <span class="ok">score</span>     — Check your score\n  <span class="ok">clear</span>     — Clear terminal\n';
+  } else if (cmd === 'clear') {
+    output.innerHTML = '';
+  } else if (cmd === 'scenario') {
+    var available = termScenarios.filter(function(_, i) { return termScenariosUsed.indexOf(i) === -1; });
+    if (available.length === 0) {
+      output.innerHTML += '<span class="ok">You\'ve classified all scenarios! Final score: ' + termCorrect + '/' + termScenariosUsed.length + '</span>\n';
+      addScore('terminal_all');
+      return;
+    }
+    var pool = termScenarios.map(function(s, i) { return termScenariosUsed.indexOf(i) === -1 ? i : -1; }).filter(function(i) { return i >= 0; });
+    var ri = pool[Math.floor(Math.random() * pool.length)];
+    termCurrentScenario = ri;
+    output.innerHTML += '<span class="warn">DECISION:</span> ' + termScenarios[ri].desc + '\n<span class="">Is this a <span class="err">Type 1 (one-way door)</span> or <span class="ok">Type 2 (two-way door)</span>?</span>\n<span class="">Type <span class="cmd">1</span> or <span class="cmd">2</span> to classify.</span>\n';
+    hint.innerHTML = '💡 One-way doors are irreversible and need careful analysis. Two-way doors are reversible — just do it.';
+  } else if (cmd === '1' || cmd === '2') {
+    if (termCurrentScenario === null) {
+      output.innerHTML += '<span class="err">No active scenario. Type "scenario" first.</span>\n';
+      return;
+    }
+    var s = termScenarios[termCurrentScenario];
+    termScenariosUsed.push(termCurrentScenario);
+    if (cmd === s.answer) {
+      output.innerHTML += '<span class="ok">✓ CORRECT!</span> ' + s.explain + '\n';
+      termCorrect++;
+      addScore('term_' + termCurrentScenario);
+    } else {
+      output.innerHTML += '<span class="err">✗ Not quite.</span> ' + s.explain + '\n';
+    }
+    output.innerHTML += '<span class="">Score: ' + termCorrect + '/' + termScenariosUsed.length + '. Type "scenario" for another.</span>\n';
+    termCurrentScenario = null;
+  } else if (cmd === 'score') {
+    output.innerHTML += '<span class="ok">Score: ' + termCorrect + '/' + termScenariosUsed.length + '</span>\n';
+  } else {
+    output.innerHTML += '<span class="err">Unknown command. Type "help" for options.</span>\n';
+  }
+  output.scrollTop = output.scrollHeight;
+}
+
+/* --- SLIDE 12: FRUGALITY (Binary Elimination) --- */
+var frugalData = [
+  { name: "Enterprise SaaS Platform", cost: "$450K", viable: false, reason: "Way over budget. Enterprise doesn't mean expensive — it means over-engineered for this stage." },
+  { name: "Outsource to Agency", cost: "$200K", viable: false, reason: "Double the budget plus you lose institutional knowledge. Frugality means building capability, not renting it." },
+  { name: "Hire 5 Engineers", cost: "$180K", viable: false, reason: "Headcount is the most expensive long-term commitment. 'No extra points for growing headcount.'" },
+  { name: "Internal Hackathon MVP", cost: "$15K", viable: false, reason: "Creative and cheap, but hackathon code rarely survives production. Good for prototyping, not shipping." },
+  { name: "2-Person Team + Open Source", cost: "$85K", viable: true, reason: "✓ WINNER! Constraints breed invention. Small team, leveraging existing tools, focused scope. This is frugality done right." },
+  { name: "Buy Competitor's Product", cost: "$300K", viable: false, reason: "Acquisition cost plus integration plus license fees. You're paying for features you don't need." },
+  { name: "AI-Generated Everything", cost: "$50K", viable: false, reason: "Cheap upfront but maintenance nightmare. AI outputs need human review — hidden cost in quality assurance." },
+  { name: "Offshore Development Team", cost: "$95K", viable: false, reason: "Near budget but coordination overhead, time zones, and quality variance eat the savings. False frugality." }
+];
+var frugalEliminated = [];
+var frugalInvestigated = [];
+
+function initFrugal() {
+  var el = document.getElementById('frugalOptions');
+  el.innerHTML = '';
+  frugalData.forEach(function(d, i) {
+    var div = document.createElement('div');
+    div.className = 'card';
+    div.id = 'frugal-' + i;
+    div.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:16px;margin-bottom:8px;';
+    div.innerHTML = '<div><strong>' + d.name + '</strong><span class="text-muted" style="margin-left:12px;font-size:13px;">Cost: ' + d.cost + '</span><div class="text-muted" style="font-size:12px;margin-top:4px;display:none;" id="frugal-reason-' + i + '">' + d.reason + '</div></div><div class="btn-group"><button class="btn btn-sm btn-outline" onclick="frugalInvestigate(' + i + ')">🔍 Investigate</button><button class="btn btn-sm btn-outline" onclick="frugalEliminate(' + i + ')" id="frugal-elim-' + i + '">❌ Eliminate</button></div>';
+    el.appendChild(div);
+  });
+}
+
+function frugalInvestigate(idx) {
+  if (frugalInvestigated.indexOf(idx) >= 0) return;
+  frugalInvestigated.push(idx);
+  document.getElementById('frugal-reason-' + idx).style.display = 'block';
+  document.getElementById('frugalInvestigations').textContent = frugalInvestigated.length;
+  addScore('frugal_inv_' + idx);
+}
+
+function frugalEliminate(idx) {
+  if (frugalEliminated.indexOf(idx) >= 0) return;
+  frugalEliminated.push(idx);
+  var card = document.getElementById('frugal-' + idx);
+  if (frugalData[idx].viable) {
+    card.style.borderColor = 'var(--error)';
+    card.style.background = 'var(--error-dim)';
+    document.getElementById('frugalResult').className = 'insight insight-error';
+    document.getElementById('frugalResult').innerHTML = '❌ You eliminated the best option! ' + frugalData[idx].reason;
+    document.getElementById('frugalResult').style.display = 'block';
+  } else {
+    card.style.opacity = '0.4';
+    card.style.borderColor = 'var(--text-dim)';
+    document.getElementById('frugal-elim-' + idx).disabled = true;
+    addScore('frugal_elim_' + idx);
+  }
+  document.getElementById('frugalRemaining').textContent = 8 - frugalEliminated.length;
+  if (frugalEliminated.length === 7 && frugalEliminated.indexOf(4) === -1) {
+    document.getElementById('frugalResult').className = 'insight insight-success';
+    document.getElementById('frugalResult').innerHTML = '🎯 You found the frugal winner! "' + frugalData[4].name + '" — ' + frugalData[4].reason;
+    document.getElementById('frugalResult').style.display = 'block';
+    addScore('frugal_solved');
+  }
+}
+
+/* --- SLIDE 13: EARN TRUST (Sync Diagram) --- */
+var trustData = [
+  { label: 'Listen', nodes: [2,1,0,0], arrows: [1,0,0], explain: '<strong>👂 Active Listening</strong> — Trust starts with YOU making others feel heard. When you truly listen, your team feels valued. It rarely extends beyond the team without the other actions.' },
+  { label: 'Speak Candidly', nodes: [2,2,1,0], arrows: [1,1,0], explain: '<strong>💬 Candid Communication</strong> — Honesty flows outward. Your team hears it first, then they model it for the org. Customers eventually feel it in transparent policies and honest product descriptions.' },
+  { label: 'Self-Critical', nodes: [2,2,2,1], arrows: [1,1,1], explain: '<strong>🪞 Vocal Self-Criticism</strong> — The most powerful trust builder. When leaders admit mistakes publicly, it cascades through the entire system. Customers trust companies that own their failures.' },
+  { label: 'Benchmark', nodes: [2,2,2,2], arrows: [1,1,1], explain: '<strong>📊 Benchmark Against the Best</strong> — Measuring against external standards keeps everyone honest. Teams know where they stand, the org improves systematically, and customers get best-in-class service.' }
+];
+
+function trustAction(idx) {
+  var d = trustData[idx];
+  var colors = ['var(--text-dim)', 'var(--teal)', 'var(--orange)'];
+  for (var b = 0; b < 4; b++) {
+    document.getElementById('trust-btn-' + b).className = b === idx ? 'btn btn-outline active' : 'btn btn-outline';
+  }
+  for (var n = 0; n < 4; n++) {
+    var node = document.getElementById('trustNode' + n);
+    node.style.borderColor = colors[d.nodes[n]];
+    node.style.color = colors[d.nodes[n]];
+    node.style.boxShadow = d.nodes[n] === 2 ? '0 0 12px ' + colors[2] : 'none';
+  }
+  for (var a = 0; a < 3; a++) {
+    var arrow = document.getElementById('trustArrow' + a + '' + (a+1));
+    arrow.style.color = d.arrows[a] ? 'var(--orange)' : 'var(--text-dim)';
+    arrow.style.fontSize = d.arrows[a] ? '28px' : '20px';
+  }
+  document.getElementById('trustExplain').innerHTML = d.explain;
+  addScore('trust_' + idx);
+}
+
+/* --- SLIDE 14: DIVE DEEP (Pattern Matching) --- */
+var diveMetrics = [
+  { label: "Conversion Rate", value: "2.1%", trend: "↓ 34%", tags: ["conversion","checkout","purchase","revenue"], alert: true },
+  { label: "Page Load Time", value: "4.2s", trend: "↑ 180%", tags: ["latency","speed","load","performance"], alert: true },
+  { label: "Error Rate (5xx)", value: "0.3%", trend: "↑ 12%", tags: ["error","500","server","crash"], alert: false },
+  { label: "Cart Abandonment", value: "78%", trend: "↑ 23%", tags: ["cart","abandon","checkout","conversion"], alert: true },
+  { label: "Search Relevance", value: "87%", trend: "→ 0%", tags: ["search","relevance","query"], alert: false },
+  { label: "Checkout Latency", value: "8.1s", trend: "↑ 290%", tags: ["checkout","latency","payment","slow"], alert: true },
+  { label: "Mobile Sessions", value: "62%", trend: "→ +1%", tags: ["mobile","sessions","traffic"], alert: false },
+  { label: "Payment Failures", value: "1.2%", trend: "↑ 45%", tags: ["payment","error","checkout","failure"], alert: true }
+];
+var diveFound = new Set();
+
+function initDive() {
+  var el = document.getElementById('diveMetrics');
+  el.innerHTML = '';
+  diveMetrics.forEach(function(m, i) {
+    var div = document.createElement('div');
+    div.className = 'card';
+    div.id = 'dive-' + i;
+    div.style.cssText = 'padding:16px;transition:0.3s;';
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><strong>' + m.label + '</strong><span style="font-size:20px;font-weight:700;">' + m.value + '</span></div><div style="margin-top:4px;font-size:13px;color:' + (m.alert ? 'var(--error)' : 'var(--text-dim)') + ';">' + m.trend + '</div>';
+    el.appendChild(div);
+  });
+}
+
+function diveSearch(query) {
+  var q = query.toLowerCase().trim();
+  diveMetrics.forEach(function(m, i) {
+    var card = document.getElementById('dive-' + i);
+    var match = q.length > 1 && m.tags.some(function(t) { return t.indexOf(q) >= 0; });
+    card.style.borderColor = match ? (m.alert ? 'var(--error)' : 'var(--teal)') : 'var(--border)';
+    card.style.transform = match ? 'scale(1.02)' : 'scale(1)';
+    if (match && m.alert) diveFound.add(i);
+  });
+  if (diveFound.size >= 4) {
+    var result = document.getElementById('diveResult');
+    result.className = 'insight insight-success';
+    result.innerHTML = '🎯 <strong>Root Cause Found!</strong> Checkout latency spiked 290%, causing page loads to balloon to 4.2s. This cascaded into cart abandonment (+23%) and conversion dropping 34%. Payment failures (+45%) confirm the checkout service is the bottleneck.<br><br><em>This is Dive Deep — metrics told one story ("revenue is down"), but the details revealed the actual cause. Leaders are skeptical when metrics and anecdote differ.</em>';
+    result.style.display = 'block';
+    addScore('dive_solved');
+  }
+  if (q.length > 1) addScore('dive_search');
+}
+
+/* --- SLIDE 15: HAVE BACKBONE (Sequential Steps) --- */
+var backboneData = [
+  { title: "1. The Situation", content: "<strong>Context:</strong> Your VP wants to launch a new feature in 2 weeks. You've analyzed the data and believe the feature will hurt the customer experience — it adds complexity without solving a real problem.<br><br><strong>The easy path:</strong> Say nothing. The VP outranks you. It'll probably be fine.<br><strong>The LP path:</strong> You're <em>obligated</em> to disagree.", color: "orange" },
+  { title: "2. Gather Evidence", content: "<strong>Before speaking up, prepare:</strong><br>• Customer survey data showing 67% find the current flow confusing<br>• A/B test from a similar feature that reduced engagement 15%<br>• Usage analytics showing the 'problem' affects only 3% of users<br>• Alternative proposal that addresses the VP's underlying goal<br><br><em>Backbone without data is just opinion. Data without backbone is just a report nobody reads.</em>", color: "teal" },
+  { title: "3. Respectfully Challenge", content: "<strong>The conversation:</strong><br><br>\"I understand the goal of increasing engagement, and I think we should pursue it differently. The data shows this feature would add complexity to a flow that 67% of users already find confusing. A similar feature reduced engagement 15% in our Q2 test. I'd like to propose [alternative] instead — it targets the same goal with less customer friction.\"<br><br><em>Notice: specific data, acknowledgment of the goal, respectful tone, concrete alternative.</em>", color: "orange" },
+  { title: "4. The Debate", content: "<strong>The VP pushes back:</strong> \"We've already committed to the roadmap. The board expects this feature.\"<br><br><strong>Your response:</strong> \"I respect the commitment, and I wouldn't raise this if I didn't believe it's important. Can we look at the A/B data together? If I'm wrong, I'll be the first to say so and drive the implementation. But I'd rather us be right than fast on this one.\"<br><br><em>Tenacious but not aggressive. Conviction with humility.</em>", color: "teal" },
+  { title: "5. Decision Made", content: "<strong>The VP decides:</strong> \"I hear you. Let's do a 2-week A/B test with 10% of users. If the data supports your concern, we pivot.\"<br><br>This is the ideal outcome — but sometimes the decision goes against you. Maybe the VP says: \"I appreciate the analysis, but we're moving forward.\"<br><br><strong>Both outcomes lead to step 6...</strong>", color: "orange" },
+  { title: "6. Commit Wholly", content: "<strong>Whether you won or lost the debate, you commit 100%.</strong><br><br>If the decision went your way: drive the A/B test rigorously. Be willing to be proven wrong.<br><br>If the decision went against you: execute with full energy. No passive-aggressive sabotage. No 'I told you so' if it fails. No half-effort. You disagreed, you were heard, now you commit wholly.<br><br><em>\"Leaders do not compromise for the sake of social cohesion. Once a decision is determined, they commit wholly.\"</em>", color: "teal" }
+];
+
+function initBackbone() {
+  var stepsEl = document.getElementById('backboneSteps');
+  stepsEl.innerHTML = '';
+  backboneData.forEach(function(d, i) {
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-sm btn-outline';
+    btn.id = 'bb-step-' + i;
+    btn.textContent = (i + 1);
+    btn.style.cssText = 'width:36px;height:36px;border-radius:50%;margin:0 4px;';
+    btn.onclick = function() { revealBackbone(i); };
+    stepsEl.appendChild(btn);
+  });
+}
+var bbRevealed = -1;
+function revealBackbone(idx) {
+  if (idx > bbRevealed + 1) return;
+  bbRevealed = Math.max(bbRevealed, idx);
+  var content = document.getElementById('backboneContent');
+  var d = backboneData[idx];
+  content.innerHTML = '<h3 class="text-' + d.color + ' mb-8">' + d.title + '</h3><p style="font-size:14px;line-height:1.7;">' + d.content + '</p>';
+  for (var i = 0; i <= bbRevealed; i++) {
+    document.getElementById('bb-step-' + i).className = 'btn btn-sm ' + (i === idx ? 'btn-orange' : 'btn-outline active');
+  }
+  addScore('backbone_' + idx);
+  if (idx === 5) {
+    document.getElementById('backboneInsight').className = 'insight insight-success';
+    document.getElementById('backboneInsight').innerHTML = '✅ <strong>The full cycle:</strong> Gather evidence → Challenge respectfully → Debate with data → Accept the decision → Commit 100%. This is one of the hardest principles to practice because it requires both courage AND humility.';
+    document.getElementById('backboneInsight').style.display = 'block';
+  }
+}
+
+/* --- SLIDE 16: DELIVER RESULTS (Drag to prioritize) --- */
+var deliverItems = [
+  { text: "Fix critical checkout bug (revenue loss: $50K/day)", priority: 1 },
+  { text: "Launch new recommendation engine (projected +8% conversion)", priority: 2 },
+  { text: "Redesign internal admin dashboard", priority: 6 },
+  { text: "Address top customer complaint (4.2★ → target 4.5★)", priority: 3 },
+  { text: "Write documentation for new API", priority: 5 },
+  { text: "Implement CEO's pet feature request", priority: 7 },
+  { text: "Reduce page load time from 3s to 1.5s", priority: 4 }
+];
+var deliverOrder = [];
+
+function initDeliver() {
+  deliverOrder = deliverItems.map(function(_, i) { return i; });
+  for (var i = deliverOrder.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = deliverOrder[i]; deliverOrder[i] = deliverOrder[j]; deliverOrder[j] = t;
+  }
+  renderDeliver();
+}
+
+function renderDeliver() {
+  var el = document.getElementById('deliverList');
+  el.innerHTML = '';
+  deliverOrder.forEach(function(idx, pos) {
+    var div = document.createElement('div');
+    div.className = 'card';
+    div.draggable = true;
+    div.style.cssText = 'padding:12px 16px;margin-bottom:6px;cursor:grab;display:flex;align-items:center;gap:12px;';
+    div.innerHTML = '<span class="text-orange" style="font-weight:700;font-size:18px;min-width:24px;">' + (pos+1) + '</span><span style="font-size:14px;">' + deliverItems[idx].text + '</span>';
+    div.setAttribute('data-idx', idx);
+    div.ondragstart = function(e) { e.dataTransfer.setData('text', pos.toString()); div.style.opacity = '0.4'; };
+    div.ondragend = function() { div.style.opacity = '1'; };
+    div.ondragover = function(e) { e.preventDefault(); div.style.borderColor = 'var(--orange)'; };
+    div.ondragleave = function() { div.style.borderColor = 'var(--border)'; };
+    div.ondrop = function(e) {
+      e.preventDefault();
+      div.style.borderColor = 'var(--border)';
+      var fromPos = parseInt(e.dataTransfer.getData('text'));
+      var toPos = pos;
+      var item = deliverOrder.splice(fromPos, 1)[0];
+      deliverOrder.splice(toPos, 0, item);
+      renderDeliver();
+    };
+    el.appendChild(div);
+  });
+}
+
+function checkDeliver() {
+  var correct = 0;
+  var results = '';
+  deliverOrder.forEach(function(idx, pos) {
+    var isCorrect = deliverItems[idx].priority === pos + 1;
+    if (isCorrect) correct++;
+    results += '<div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;"><span style="color:' + (isCorrect ? 'var(--success)' : 'var(--error)') + ';font-size:16px;">' + (isCorrect ? '✓' : '✗') + '</span><span style="font-size:13px;">#' + (pos+1) + ' ' + deliverItems[idx].text + (isCorrect ? '' : ' (should be #' + deliverItems[idx].priority + ')') + '</span></div>';
+  });
+  var el = document.getElementById('deliverResult');
+  el.className = correct >= 5 ? 'insight insight-success' : 'insight insight-error';
+  el.innerHTML = '<strong>' + correct + '/7 correct!</strong> ' + (correct >= 5 ? 'Great prioritization!' : 'Remember: fix what\'s broken (revenue loss), then build what grows, then improve what works. CEO pet projects are usually the lowest priority.') + '<div style="margin-top:12px;">' + results + '</div>';
+  el.style.display = 'block';
+  if (correct >= 5) addScore('deliver_good');
+  addScore('deliver_attempt');
+}
+
+/* --- SLIDE 17: EARTH'S BEST EMPLOYER (Consequence Explorer) --- */
+var employerData = [
+  { title: "Flexible Remote Work", impacts: [
+    { area: "Productivity", effect: "+15% for focused work, -10% for collaborative work", icon: "📊" },
+    { area: "Retention", effect: "+25% — top reason employees stay in 2026", icon: "🔒" },
+    { area: "DEI", effect: "+40% access to diverse talent pools outside tech hubs", icon: "🌍" },
+    { area: "Culture Risk", effect: "Medium — requires intentional connection rituals", icon: "⚠️" }
+  ], insight: "Flexibility is the #1 benefit employees value. But it requires deliberate investment in async communication and team bonding. The LP says 'make it easy for others to have fun' — harder when remote, but not impossible." },
+  { title: "Mandatory Growth Plans", impacts: [
+    { area: "Development", effect: "Structured path for every employee", icon: "📈" },
+    { area: "Engagement", effect: "+30% when employees see a future", icon: "💪" },
+    { area: "Manager Load", effect: "+5 hours/month per direct report", icon: "⏰" },
+    { area: "Attrition Risk", effect: "Low — people leave managers, not companies", icon: "🚪" }
+  ], insight: "'Leaders develop leaders and take seriously their role in coaching others.' Growth plans make this concrete and measurable. The best employers don't just hire talent — they grow it." },
+  { title: "Psychological Safety Training", impacts: [
+    { area: "Innovation", effect: "+70% more likely to share risky ideas", icon: "💡" },
+    { area: "Error Detection", effect: "+50% faster — people report issues sooner", icon: "🐛" },
+    { area: "Backbone Effect", effect: "Enables 'Disagree and Commit' to actually work", icon: "🦴" },
+    { area: "Time to Impact", effect: "6-12 months — culture change is slow", icon: "🐢" }
+  ], insight: "Psychological safety is the foundation that makes other LPs work. You can't 'Have Backbone' if speaking up gets you punished. You can't 'Earn Trust' without vulnerability. This is the meta-investment." },
+  { title: "Fun & Team Building", impacts: [
+    { area: "Morale", effect: "+20% team satisfaction scores", icon: "😊" },
+    { area: "Collaboration", effect: "Stronger cross-team bonds from shared experiences", icon: "🤝" },
+    { area: "Burnout Risk", effect: "-30% when teams genuinely enjoy working together", icon: "🔋" },
+    { area: "Trap", effect: "Fun without substance → 'toxic positivity'", icon: "⚠️" }
+  ], insight: "'Have fun at work, and make it easy for others to have fun.' But fun is the RESULT of a healthy culture, not the cause. Pizza parties don't fix broken management. Combine with other investments." }
+];
+
+function employerChoice(idx) {
+  var d = employerData[idx];
+  var cards = document.getElementById('employerChoices').children;
+  for (var c = 0; c < cards.length; c++) {
+    cards[c].style.borderColor = c === idx ? 'var(--orange)' : 'var(--border)';
+    cards[c].style.background = c === idx ? 'var(--orange-dim)' : '';
+  }
+  var html = '<div class="card card-teal" style="margin-top:16px;"><h3 class="text-teal mb-16">' + d.title + ' — Impact Analysis</h3>';
+  d.impacts.forEach(function(imp) {
+    html += '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="font-size:20px;">' + imp.icon + '</span><div><strong>' + imp.area + '</strong><br><span class="text-muted" style="font-size:13px;">' + imp.effect + '</span></div></div>';
+  });
+  html += '<div class="insight" style="margin-top:16px;">' + d.insight + '</div></div>';
+  document.getElementById('employerResult').innerHTML = html;
+  document.getElementById('employerResult').style.display = 'block';
+  addScore('employer_' + idx);
+}
+
+/* --- SLIDE 18: BROAD RESPONSIBILITY (Puzzle) --- */
+var broadOptions = [
+  { text: "Launch immediately — speed to market is everything. We can address concerns later.", wrong: true, feedback: "This ignores secondary effects. At Amazon's scale, 'address it later' means millions of people are already affected. The LP says 'be humble and thoughtful about even the secondary effects.'" },
+  { text: "Cancel the program — the risks outweigh the benefits.", wrong: true, feedback: "Overcorrection. The LP doesn't say 'avoid impact' — it says 'be better every day.' Canceling eliminates both the harm AND the benefit to customers." },
+  { text: "Launch with a comprehensive community impact plan: noise studies, wildlife corridors, local job creation, opt-in only zones, and transparent reporting.", wrong: false, feedback: "✓ This is broad responsibility in action. You acknowledge the impact (humble), plan for secondary effects (thoughtful), create benefit for communities (leave things better), and maintain transparency (earn trust)." },
+  { text: "Launch in rural areas only where there are fewer concerns about noise and privacy.", wrong: true, feedback: "This treats rural communities as less important. The LP says 'our local communities, planet, and future generations need us to be better.' ALL communities matter equally." }
+];
+
+function initBroad() {
+  var el = document.getElementById('broadQuiz');
+  el.innerHTML = '';
+  broadOptions.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-outline';
+    btn.style.cssText = 'display:block;width:100%;text-align:left;margin-bottom:8px;padding:16px;font-size:14px;line-height:1.5;white-space:normal;';
+    btn.textContent = opt.text;
+    btn.onclick = function() { broadAnswer(i); };
+    btn.id = 'broad-opt-' + i;
+    el.appendChild(btn);
+  });
+}
+
+function broadAnswer(idx) {
+  var opt = broadOptions[idx];
+  for (var i = 0; i < broadOptions.length; i++) {
+    var btn = document.getElementById('broad-opt-' + i);
+    btn.disabled = true;
+    if (i === idx) {
+      btn.style.borderColor = opt.wrong ? 'var(--error)' : 'var(--success)';
+      btn.style.background = opt.wrong ? 'var(--error-dim)' : 'var(--success-dim)';
+    }
+    if (!broadOptions[i].wrong) {
+      document.getElementById('broad-opt-' + i).style.borderColor = 'var(--success)';
+    }
+  }
+  var result = document.getElementById('broadResult');
+  result.className = opt.wrong ? 'insight insight-error' : 'insight insight-success';
+  result.innerHTML = opt.feedback;
+  result.style.display = 'block';
+  if (!opt.wrong) addScore('broad_correct');
+  addScore('broad_attempt');
+}
+
+/* --- SLIDE 19: WORKING BACKWARDS / PR-FAQ (Progressive Reveal) --- */
+var prfaqData = [
+  { title: "1. Start with the Customer", content: "Before writing any code, before any technical design — write a <strong>Press Release</strong>. Not a real one, an internal document that describes the finished product as if you're announcing it to the world.<br><br>This forces you to answer: <em>Who is the customer? What problem does this solve? Why should they care?</em>" },
+  { title: "2. Write the Press Release", content: "<strong>Structure:</strong><br>• <strong>Headline</strong> — Name the product and the customer benefit<br>• <strong>Subheading</strong> — Who it's for and what they get<br>• <strong>Problem paragraph</strong> — The pain point today<br>• <strong>Solution paragraph</strong> — How the product solves it<br>• <strong>Quote from leader</strong> — Why this matters to the company<br>• <strong>Customer quote</strong> — What the customer says after using it<br>• <strong>How to get started</strong> — The call to action" },
+  { title: "3. Write the FAQ", content: "<strong>Two sections:</strong><br><br><strong>External FAQ</strong> (customer questions):<br>• How much does it cost?<br>• How is this different from [competitor]?<br>• What if I need help?<br><br><strong>Internal FAQ</strong> (stakeholder questions):<br>• How much will this cost to build?<br>• What are the risks?<br>• How does this affect existing products?<br>• What are the key metrics?" },
+  { title: "4. Iterate Until Clear", content: "The PR/FAQ goes through <strong>multiple reviews</strong>. Senior leaders read it and ask hard questions. If the press release isn't compelling, the product idea needs work.<br><br><em>Key insight: it's much cheaper to iterate on a document than on code.</em> A bad 6-pager costs a week. A bad product costs a year." },
+  { title: "5. Build Backwards", content: "Once the PR/FAQ is approved, <strong>every technical decision works backwards from the customer experience described in the press release.</strong><br><br>Architecture? Must support the described use cases.<br>Timeline? Must hit the described launch.<br>Trade-offs? Prioritize whatever the customer quote celebrates.<br><br>The press release becomes the North Star." },
+  { title: "6. Why It Works", content: "<strong>Working Backwards prevents:</strong><br>• Building solutions looking for problems<br>• Feature creep (if it's not in the PR, it's not in scope)<br>• Misalignment (everyone reads the same document)<br>• Sunk cost fallacy (kill bad ideas at the document stage)<br><br>Products born from Working Backwards: <strong>Kindle, Prime, AWS, Alexa, Fire TV.</strong> Each started as a press release." }
+];
+
+function initPrfaq() {
+  var stepsEl = document.getElementById('prfaqSteps');
+  stepsEl.innerHTML = '';
+  prfaqData.forEach(function(d, i) {
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-sm btn-outline';
+    btn.id = 'prfaq-step-' + i;
+    btn.textContent = (i + 1);
+    btn.style.cssText = 'width:36px;height:36px;border-radius:50%;margin:0 4px;';
+    btn.onclick = function() { revealPrfaq(i); };
+    stepsEl.appendChild(btn);
+  });
+}
+var prfaqRevealed = -1;
+function revealPrfaq(idx) {
+  if (idx > prfaqRevealed + 1) return;
+  prfaqRevealed = Math.max(prfaqRevealed, idx);
+  var content = document.getElementById('prfaqContent');
+  content.innerHTML = '<h3 class="text-orange mb-8">' + prfaqData[idx].title + '</h3><p style="font-size:14px;line-height:1.7;">' + prfaqData[idx].content + '</p>';
+  for (var i = 0; i <= prfaqRevealed; i++) {
+    document.getElementById('prfaq-step-' + i).className = 'btn btn-sm ' + (i === idx ? 'btn-orange' : 'btn-outline active');
+  }
+  addScore('prfaq_' + idx);
+}
+
+/* --- SLIDE 20: LPs IN TENSION (Toggle Comparison) --- */
+var tensionData = [
+  { left: { lp: "Bias for Action", title: "Move Fast", points: ["Speed matters in business", "Many decisions are reversible", "Calculated risk taking", "Don't let analysis paralyze you"] },
+    right: { lp: "Insist on the Highest Standards", title: "Get It Right", points: ["Relentlessly high standards", "Defects don't get sent down the line", "Problems are fixed so they stay fixed", "Quality is non-negotiable"] },
+    insight: "<strong>Resolution:</strong> Use the <em>one-way/two-way door</em> framework. Two-way doors (reversible decisions) → Bias for Action. One-way doors (irreversible) → Highest Standards. The art is correctly classifying which type you're facing." },
+  { left: { lp: "Frugality", title: "Do More With Less", points: ["Constraints breed resourcefulness", "No points for growing budget", "Self-sufficiency and invention", "Lean is a feature, not a bug"] },
+    right: { lp: "Think Big", title: "Invest Boldly", points: ["Thinking small is self-fulfilling", "Bold direction inspires results", "Look around corners", "Serve customers at massive scale"] },
+    insight: "<strong>Resolution:</strong> Be frugal with resources, but bold with vision. Amazon's AWS started with leftover server capacity (frugal) but with the ambition to power the entire internet (think big). The constraint IS the innovation engine." },
+  { left: { lp: "Ownership", title: "Own Everything", points: ["Act on behalf of the entire company", "Never say 'not my job'", "Think long-term", "Don't sacrifice long-term for short-term"] },
+    right: { lp: "Earn Trust", title: "Trust Others", points: ["Listen attentively", "Treat others respectfully", "Be vocally self-critical", "Benchmark against the best"] },
+    insight: "<strong>Resolution:</strong> Ownership doesn't mean doing everything yourself — it means making sure everything gets done well. Earning trust means empowering others to own their domain while maintaining accountability. The best leaders own the outcome but trust the process to their team." }
+];
+
+function tensionSwitch(idx) {
+  var d = tensionData[idx];
+  var btns = document.getElementById('tensionToggle').children;
+  for (var b = 0; b < btns.length; b++) btns[b].className = b === idx ? 'toggle-btn active' : 'toggle-btn';
+  var panels = document.getElementById('tensionPanels');
+  panels.innerHTML = '<div class="card card-orange"><h3 class="text-orange mb-8">' + d.left.lp + ': ' + d.left.title + '</h3><ul style="list-style:none;font-size:14px;">' + d.left.points.map(function(p) { return '<li style="padding:4px 0;">• ' + p + '</li>'; }).join('') + '</ul></div><div class="card card-teal"><h3 class="text-teal mb-8">' + d.right.lp + ': ' + d.right.title + '</h3><ul style="list-style:none;font-size:14px;">' + d.right.points.map(function(p) { return '<li style="padding:4px 0;">• ' + p + '</li>'; }).join('') + '</ul></div>';
+  document.getElementById('tensionInsight').innerHTML = d.insight;
+  addScore('tension_' + idx);
+}
+
+/* --- SLIDE 21: STAR METHOD (Terminal) --- */
+var starQuestions = [
+  { lp: "Customer Obsession", q: "Tell me about a time you went above and beyond for a customer." },
+  { lp: "Ownership", q: "Describe a situation where you took on something outside your area of responsibility." },
+  { lp: "Invent and Simplify", q: "Tell me about a time you found a simple solution to a complex problem." },
+  { lp: "Have Backbone", q: "Give an example of when you disagreed with a team decision. What did you do?" },
+  { lp: "Deliver Results", q: "Tell me about a time you had to deliver under a tight deadline with limited resources." },
+  { lp: "Dive Deep", q: "Describe a time when you had to dig into data to find the root cause of a problem." },
+  { lp: "Earn Trust", q: "Tell me about a time you had to admit a mistake. How did you handle it?" },
+  { lp: "Bias for Action", q: "Give an example of when you took action without waiting for perfect information." }
+];
+var starCurrent = null;
+var starPhase = null;
+var starUsed = [];
+
+function starSubmit() {
+  var input = document.getElementById('starInput');
+  var output = document.getElementById('starOutput');
+  var hint = document.getElementById('starHint');
+  var cmd = input.value.trim();
+  var cmdLower = cmd.toLowerCase();
+  input.value = '';
+  if (!cmd) return;
+  output.innerHTML += '\n<span class="cmd">⭐ ' + cmd + '</span>\n';
+  if (cmdLower === 'help') {
+    output.innerHTML += '<span class="warn">Commands:</span>\n  <span class="ok">question</span>  — Get a behavioral interview question\n  <span class="ok">s</span> / <span class="ok">t</span> / <span class="ok">a</span> / <span class="ok">r</span>  — Enter each STAR component\n  <span class="ok">example</span>   — See a model answer for the current question\n  <span class="ok">score</span>     — View progress\n  <span class="ok">clear</span>     — Clear terminal\n';
+  } else if (cmdLower === 'clear') {
+    output.innerHTML = '';
+  } else if (cmdLower === 'question') {
+    var avail = starQuestions.filter(function(_, i) { return starUsed.indexOf(i) === -1; });
+    if (avail.length === 0) {
+      output.innerHTML += '<span class="ok">You\'ve practiced all questions! Great preparation.</span>\n';
+      addScore('star_all');
+      return;
+    }
+    var pool = starQuestions.map(function(_, i) { return starUsed.indexOf(i) === -1 ? i : -1; }).filter(function(i) { return i >= 0; });
+    var ri = pool[Math.floor(Math.random() * pool.length)];
+    starCurrent = ri;
+    starPhase = 's';
+    output.innerHTML += '<span class="warn">LP: ' + starQuestions[ri].lp + '</span>\n<span class="">' + starQuestions[ri].q + '</span>\n\n<span class="ok">Structure your answer using STAR. Type <span class="cmd">s</span> to start with the Situation.</span>\n';
+    hint.innerHTML = '💡 <strong>S</strong>ituation: Set the scene. When was this? What was the context?';
+  } else if (['s','t','a','r'].indexOf(cmdLower) >= 0 && starCurrent !== null) {
+    var labels = { s: 'Situation', t: 'Task', a: 'Action', r: 'Result' };
+    var next = { s: 't', t: 'a', a: 'r', r: null };
+    var hints = { s: '💡 <strong>T</strong>ask: What was YOUR specific responsibility?', t: '💡 <strong>A</strong>ction: What did YOU do? (Use "I", not "we")', a: '💡 <strong>R</strong>esult: What was the measurable outcome?', r: '💡 Great! Type <code>question</code> for another, or <code>example</code> to see a model answer.' };
+    output.innerHTML += '<span class="ok">✓ ' + labels[cmdLower] + ' — noted.</span>\n';
+    starPhase = next[cmdLower];
+    hint.innerHTML = hints[cmdLower];
+    addScore('star_' + starCurrent + '_' + cmdLower);
+    if (cmdLower === 'r') {
+      starUsed.push(starCurrent);
+      output.innerHTML += '<span class="ok">🎉 Complete STAR answer! ' + starUsed.length + '/' + starQuestions.length + ' questions practiced.</span>\n';
+    }
+  } else if (cmdLower === 'example' && starCurrent !== null) {
+    output.innerHTML += '<span class="warn">Model answers require you to practice first! Complete all 4 STAR steps, then type "example".</span>\n';
+    if (starUsed.indexOf(starCurrent) >= 0) {
+      output.innerHTML += '<span class="ok">Tip: Focus on specific metrics in Results. "Reduced churn by 15%" beats "things got better."</span>\n';
+    }
+  } else if (cmdLower === 'score') {
+    output.innerHTML += '<span class="ok">Questions completed: ' + starUsed.length + '/' + starQuestions.length + '</span>\n';
+  } else {
+    output.innerHTML += '<span class="err">Try: help, question, s, t, a, r, example, score, clear</span>\n';
+  }
+  output.scrollTop = output.scrollHeight;
+}
+
+/* --- SLIDE 22: SPEED ROUND --- */
+var speedPool = [
+  { q: "Which LP says 'Leaders start with the customer and work backwards'?", opts: ["Ownership", "Customer Obsession", "Deliver Results", "Think Big"], ans: 1, section: "Section 1: Customer Obsession" },
+  { q: "What does 'two-way door' mean in Amazon's decision framework?", opts: ["A decision needing two approvals", "A reversible decision", "A decision affecting two teams", "A bilateral agreement"], ans: 1, section: "Section 9: Bias for Action" },
+  { q: "Which LP explicitly warns against 'not invented here' thinking?", opts: ["Learn and Be Curious", "Invent and Simplify", "Think Big", "Are Right, A Lot"], ans: 1, section: "Section 3: Invent and Simplify" },
+  { q: "What does Amazon's PR/FAQ start with?", opts: ["Technical spec", "Budget analysis", "Press release", "Competitive analysis"], ans: 2, section: "Section 19: Working Backwards" },
+  { q: "'No extra points for growing headcount, budget size, or fixed expense' belongs to which LP?", opts: ["Deliver Results", "Frugality", "Ownership", "Insist on the Highest Standards"], ans: 1, section: "Section 10: Frugality" },
+  { q: "In 'Earn Trust', what does Amazon say about body odor?", opts: ["Keep it professional", "Leaders don't believe their team's body odor smells of perfume", "Hygiene is a core value", "It's not mentioned"], ans: 1, section: "Section 11: Earn Trust" },
+  { q: "Which LP says 'Once a decision is determined, they commit wholly'?", opts: ["Deliver Results", "Ownership", "Have Backbone; Disagree and Commit", "Bias for Action"], ans: 2, section: "Section 13: Have Backbone" },
+  { q: "What year was Amazon's anticipatory shipping patent filed?", opts: ["2010", "2012", "2014", "2016"], ans: 2, section: "Section 8: Think Big" },
+  { q: "Which LP was added most recently (2021)?", opts: ["Learn and Be Curious", "Strive to be Earth's Best Employer", "Customer Obsession", "Dive Deep"], ans: 1, section: "Section 15: Earth's Best Employer" },
+  { q: "'Leaders are skeptical when metrics and anecdote differ' — which LP?", opts: ["Are Right, A Lot", "Deliver Results", "Dive Deep", "Insist on the Highest Standards"], ans: 2, section: "Section 12: Dive Deep" },
+  { q: "What does STAR stand for in interview method?", opts: ["Strategy, Tactic, Action, Review", "Situation, Task, Action, Result", "Scope, Timeline, Approach, Results", "Story, Theme, Analysis, Reflection"], ans: 1, section: "Section 21: STAR Method" },
+  { q: "Which LP says 'Thinking small is a self-fulfilling prophecy'?", opts: ["Invent and Simplify", "Think Big", "Bias for Action", "Customer Obsession"], ans: 1, section: "Section 8: Think Big" },
+  { q: "What does 'Bar Raiser' refer to at Amazon?", opts: ["A performance metric", "An interview role ensuring hiring bar stays high", "A manager title", "A quarterly review process"], ans: 1, section: "Section 6: Hire and Develop the Best" },
+  { q: "Which LP pair creates tension between 'move fast' and 'get it right'?", opts: ["Ownership vs Trust", "Frugality vs Think Big", "Bias for Action vs Highest Standards", "Customer Obsession vs Deliver Results"], ans: 2, section: "Section 20: LPs in Tension" },
+  { q: "'We started in a garage, but we're not there anymore' begins which LP?", opts: ["Ownership", "Think Big", "Success and Scale Bring Broad Responsibility", "Customer Obsession"], ans: 2, section: "Section 16: Broad Responsibility" },
+  { q: "What mechanism does Amazon use to prevent 'solutions looking for problems'?", opts: ["Sprint planning", "Working Backwards / PR-FAQ", "OKRs", "6-sigma"], ans: 1, section: "Section 19: Working Backwards" },
+  { q: "Which LP says leaders should 'seek diverse perspectives and work to disconfirm their beliefs'?", opts: ["Earn Trust", "Learn and Be Curious", "Are Right, A Lot", "Have Backbone"], ans: 2, section: "Section 4: Are Right, A Lot" },
+  { q: "In the Frugality exercise, why was 'AI-Generated Everything' a bad choice?", opts: ["Too expensive", "Hidden maintenance costs", "Not innovative enough", "Against company policy"], ans: 1, section: "Section 10: Frugality" },
+  { q: "What's the key difference between an 'owner' and a 'renter' mindset?", opts: ["Salary level", "Long-term vs short-term thinking", "Job title", "Years of experience"], ans: 1, section: "Section 2: Ownership" },
+  { q: "Which LP says 'No task is beneath them'?", opts: ["Ownership", "Deliver Results", "Dive Deep", "Earn Trust"], ans: 2, section: "Section 12: Dive Deep" },
+  { q: "What makes psychological safety critical for Amazon's culture?", opts: ["It's legally required", "It enables Disagree and Commit to actually work", "It reduces training costs", "It's the newest LP"], ans: 1, section: "Section 15: Earth's Best Employer" },
+  { q: "In Working Backwards, when should you iterate on the document?", opts: ["After building the MVP", "Before writing any code", "During beta testing", "After launch metrics"], ans: 1, section: "Section 19: Working Backwards" },
+  { q: "Which LP says leaders 'never say that\\'s not my job'?", opts: ["Deliver Results", "Customer Obsession", "Ownership", "Hire and Develop the Best"], ans: 2, section: "Section 2: Ownership" },
+  { q: "What's the root cause in the Dive Deep metrics exercise?", opts: ["Low search relevance", "Checkout latency spike", "Mobile traffic drop", "Error rate increase"], ans: 1, section: "Section 12: Dive Deep" }
+];
+var speedQuestions = [];
+var speedIdx = 0;
+var speedCorrect = 0;
+var speedTimer = null;
+var speedTimeLeft = 15;
+
+function startSpeedRound() {
+  speedQuestions = [];
+  var pool = speedPool.slice();
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+  }
+  speedQuestions = pool.slice(0, 10);
+  speedIdx = 0;
+  speedCorrect = 0;
+  showSpeedQuestion();
+}
+
+function showSpeedQuestion() {
+  if (speedIdx >= speedQuestions.length) { showSpeedReview(); return; }
+  var sq = speedQuestions[speedIdx];
+  speedTimeLeft = 15;
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><span class="text-muted">Question ' + (speedIdx+1) + '/10</span><span id="speedTimerDisp" style="font-size:24px;font-weight:700;color:var(--orange);">15.0</span></div>';
+  html += '<h3 style="font-size:16px;margin-bottom:16px;">' + sq.q + '</h3>';
+  sq.opts.forEach(function(opt, i) {
+    html += '<button class="btn btn-outline" style="display:block;width:100%;text-align:left;margin-bottom:8px;padding:14px;" id="speed-opt-' + i + '" onclick="speedAnswer(' + i + ')">' + opt + '</button>';
+  });
+  document.getElementById('speedContent').innerHTML = html;
+  clearInterval(speedTimer);
+  speedTimer = setInterval(function() {
+    speedTimeLeft -= 0.1;
+    var disp = document.getElementById('speedTimerDisp');
+    if (disp) {
+      disp.textContent = Math.max(0, speedTimeLeft).toFixed(1);
+      if (speedTimeLeft <= 3) { disp.style.color = 'var(--error)'; disp.style.animation = 'pulse 0.5s infinite'; }
+    }
+    if (speedTimeLeft <= 0) {
+      clearInterval(speedTimer);
+      speedQuestions[speedIdx].userAnswer = -1;
+      speedQuestions[speedIdx].timedOut = true;
+      speedIdx++;
+      showSpeedQuestion();
+    }
+  }, 100);
+}
+
+function speedAnswer(idx) {
+  clearInterval(speedTimer);
+  var sq = speedQuestions[speedIdx];
+  sq.userAnswer = idx;
+  sq.timedOut = false;
+  if (idx === sq.ans) speedCorrect++;
+  speedIdx++;
+  showSpeedQuestion();
+}
+
+function showSpeedReview() {
+  var html = '<h3 class="text-orange mb-16">⚡ Speed Round Complete: ' + speedCorrect + '/10</h3>';
+  speedQuestions.forEach(function(sq, i) {
+    var correct = sq.userAnswer === sq.ans;
+    var borderColor = correct ? 'var(--success)' : 'var(--error)';
+    html += '<div class="card" style="padding:16px;margin-bottom:8px;border-color:' + borderColor + ';">';
+    html += '<strong style="font-size:13px;">' + (i+1) + '. ' + sq.q + '</strong>';
+    sq.opts.forEach(function(opt, oi) {
+      var style = '';
+      if (oi === sq.ans) style = 'color:var(--success);font-weight:700;';
+      else if (oi === sq.userAnswer && sq.userAnswer !== sq.ans) style = 'color:var(--error);';
+      html += '<div style="font-size:13px;padding:2px 0;' + style + '">' + (oi === sq.ans ? '✓ ' : oi === sq.userAnswer ? '✗ ' : '  ') + opt + (oi === sq.userAnswer && oi !== sq.ans ? ' (your answer)' : '') + '</div>';
+    });
+    if (sq.timedOut) html += '<div style="font-size:12px;color:var(--error);">⏱ Time ran out</div>';
+    html += '<div style="font-size:12px;color:var(--text-dim);margin-top:4px;">(' + sq.section + ')</div>';
+    html += '</div>';
+  });
+  html += '<button class="btn btn-orange" style="margin-top:16px;" onclick="startSpeedRound()">🔄 Retry</button>';
+  document.getElementById('speedContent').innerHTML = html;
+  addScore('speed_complete');
+  if (speedCorrect >= 8) addScore('speed_ace');
+}
+
+/* --- SLIDE 23: KNOWLEDGE ASSESSMENT --- */
+var assessPool = [
+  { q: "A customer requests a feature that would benefit them but hurt the experience for 90% of other users. Under Customer Obsession, what should you do?", opts: ["Build it — the customer is always right", "Decline and explain why", "Build it as an opt-in feature that doesn't affect others", "Escalate to management"], ans: 2, feedback_right: "Customer Obsession means obsessing over ALL customers, not just the one asking. An opt-in feature respects both the requester and the majority.", feedback_wrong: "Customer Obsession isn't about saying yes to every request — it's about maximizing value for all customers." },
+  { q: "Your team discovers a bug that affects 0.01% of users. It would take 2 weeks to fix. What does 'Insist on the Highest Standards' require?", opts: ["Ignore it — 0.01% is negligible", "Fix it — defects don't get sent down the line", "Log it for next quarter", "Wait for more complaints"], ans: 1, feedback_right: "Correct. 'Leaders ensure that defects do not get sent down the line and that problems are fixed so they stay fixed.' At Amazon's scale, 0.01% is still thousands of customers.", feedback_wrong: "At Amazon's scale, 0.01% = tens of thousands of affected customers. Standards don't have a threshold." },
+  { q: "You're 80% sure your approach is right, but gathering the remaining 20% certainty would take 3 more weeks. This is a reversible decision. What do you do?", opts: ["Wait for certainty", "Launch now and measure", "Ask for a committee vote", "Reduce scope to be safer"], ans: 1, feedback_right: "Two-way door + 80% confidence = Bias for Action. Launch, measure, iterate. The 3 weeks of analysis might not even change the decision.", feedback_wrong: "This is a two-way door with 80% confidence. Waiting for perfect information is the opposite of Bias for Action." },
+  { q: "Why does Amazon write 6-page narratives instead of PowerPoint presentations?", opts: ["Jeff Bezos didn't like slides", "Narratives force deeper thinking and can't hide behind bullet points", "It's cheaper than presentation software", "PowerPoint is too slow"], ans: 1, feedback_right: "Narratives require the author to think through logic, causality, and details. Bullet points let you hide weak reasoning behind vague statements. This connects to multiple LPs: Dive Deep, Highest Standards, and Are Right A Lot.", feedback_wrong: "The narrative format forces structured thinking. You can't hide weak logic in complete sentences the way you can in bullet points." },
+  { q: "A VP and a senior engineer disagree about architecture. The VP wants microservices, the engineer wants a monolith. The engineer has data supporting their view. Under Amazon's LPs, what should happen?", opts: ["VP decides — they outrank the engineer", "Engineer must comply silently", "Engineer presents data, they debate, then whoever decides gets full commitment from both", "They compromise with a hybrid approach"], ans: 2, feedback_right: "Have Backbone + Earn Trust. The engineer is obligated to challenge with data. After respectful debate, the decision-maker decides, and both commit wholly. Rank doesn't override evidence.", feedback_wrong: "Amazon's LPs require respectful challenge regardless of hierarchy. Data matters more than titles. But once decided, full commitment." },
+  { q: "What's the relationship between 'Ownership' and 'Earn Trust'?", opts: ["They're unrelated principles", "Ownership means doing everything yourself; Trust means delegating everything", "Ownership means ensuring outcomes; Trust means empowering others to own their domain", "Trust is more important than Ownership"], ans: 2, feedback_right: "Exactly. Ownership doesn't mean micromanaging — it means making sure things get done well. You own the outcome but trust your team with the process.", feedback_wrong: "Ownership and Trust work together. You own the outcome but trust and empower others to execute. They're complementary, not competing." },
+  { q: "Amazon acquired Whole Foods for $13.7B. How does Frugality apply to a company that makes billion-dollar acquisitions?", opts: ["It doesn't — Frugality is only for small decisions", "Frugality means being strategic about WHERE you spend, not spending nothing", "They violated their own principle", "Frugality only applies to operational costs"], ans: 1, feedback_right: "Frugality is about resourcefulness, not cheapness. Constraints breed invention on daily operations so you can invest boldly on strategic bets. The two-pizza team that built AWS was frugal; the decision to build it was Think Big.", feedback_wrong: "Frugality and Think Big coexist. Be frugal with resources so you can be bold with investments. It's about allocation, not austerity." },
+  { q: "Why is 'Success and Scale Bring Broad Responsibility' important for a company like Amazon?", opts: ["Legal compliance", "At massive scale, even small decisions have enormous ripple effects on communities, the environment, and the economy", "Shareholder expectations", "Marketing purposes"], ans: 1, feedback_right: "When you process millions of packages daily, a 'small' packaging change affects oceans of plastic. When you employ 1.5M+ people, a policy change affects entire cities. Scale amplifies everything.", feedback_wrong: "At Amazon's scale, secondary effects matter enormously. A small delivery route optimization affects thousands of neighborhoods. Scale demands responsibility." },
+  { q: "In the Working Backwards process, why write a 'customer quote' in the press release before building anything?", opts: ["Marketing needs copy early", "It forces you to articulate the emotional outcome the customer will experience", "Legal requires pre-approval", "It tests the product name"], ans: 1, feedback_right: "The customer quote crystallizes what success FEELS like. If you can't write a compelling quote, you haven't nailed the value proposition. It's the emotional north star for every build decision.", feedback_wrong: "The customer quote makes you define the emotional outcome before writing a line of code. If the quote doesn't excite you, the product won't excite customers." },
+  { q: "What's the most important thing that happens AFTER a 'Disagree and Commit' disagreement?", opts: ["Document who was right", "Full, wholehearted commitment to the decision regardless of who won", "Report the disagreement to HR", "Avoid working with the person again"], ans: 1, feedback_right: "The 'Commit' part is harder than the 'Disagree' part. No passive aggression, no 'I told you so.' You disagreed, you were heard, now you execute with full energy. That's what makes it work.", feedback_wrong: "The commitment is what makes the whole principle work. Without wholehearted execution after the debate, disagreement becomes toxic politics." }
+];
+
+var assessIdx = 0;
+var assessCorrect = 0;
+
+function startAssessment() {
+  assessIdx = 0;
+  assessCorrect = 0;
+  showAssessQuestion();
+}
+
+function showAssessQuestion() {
+  if (assessIdx >= assessPool.length) { showAssessReview(); return; }
+  var aq = assessPool[assessIdx];
+  var html = '<div class="text-muted mb-8">Question ' + (assessIdx+1) + '/10</div>';
+  html += '<h3 style="font-size:16px;margin-bottom:16px;line-height:1.5;">' + aq.q + '</h3>';
+  aq.opts.forEach(function(opt, i) {
+    html += '<button class="btn btn-outline" style="display:block;width:100%;text-align:left;margin-bottom:8px;padding:14px;white-space:normal;line-height:1.4;" id="assess-opt-' + i + '" onclick="assessAnswer(' + i + ')">' + opt + '</button>';
+  });
+  document.getElementById('assessContent').innerHTML = html;
+}
+
+function assessAnswer(idx) {
+  var aq = assessPool[assessIdx];
+  var correct = idx === aq.ans;
+  if (correct) assessCorrect++;
+  for (var i = 0; i < aq.opts.length; i++) {
+    var btn = document.getElementById('assess-opt-' + i);
+    btn.disabled = true;
+    if (i === aq.ans) { btn.style.borderColor = 'var(--success)'; btn.style.background = 'var(--success-dim)'; }
+    if (i === idx && !correct) { btn.style.borderColor = 'var(--error)'; btn.style.background = 'var(--error-dim)'; }
+  }
+  var fb = document.createElement('div');
+  fb.className = correct ? 'insight insight-success' : 'insight insight-error';
+  fb.innerHTML = correct ? aq.feedback_right : aq.feedback_wrong;
+  fb.style.marginTop = '16px';
+  var nextBtn = document.createElement('button');
+  nextBtn.className = 'btn btn-orange';
+  nextBtn.style.marginTop = '12px';
+  nextBtn.textContent = assessIdx < 9 ? 'Next Question →' : 'See Results';
+  nextBtn.onclick = function() { assessIdx++; showAssessQuestion(); };
+  document.getElementById('assessContent').appendChild(fb);
+  document.getElementById('assessContent').appendChild(nextBtn);
+  addScore('assess_' + assessIdx);
+}
+
+function showAssessReview() {
+  var msg = assessCorrect >= 9 ? '🏆 Outstanding! True LP mastery.' : assessCorrect >= 7 ? '🌟 Excellent understanding!' : assessCorrect >= 5 ? '👍 Good foundation. Review the principles you missed.' : '📚 Keep studying — the principles take time to internalize.';
+  document.getElementById('assessContent').innerHTML = '<div style="text-align:center;padding:40px 0;"><div style="font-size:64px;margin-bottom:16px;">' + (assessCorrect >= 7 ? '🏆' : '📚') + '</div><h3 style="font-size:24px;margin-bottom:8px;">' + assessCorrect + '/10</h3><p class="text-muted">' + msg + '</p><button class="btn btn-teal" style="margin-top:24px;" onclick="startAssessment()">🔄 Retry Assessment</button></div>';
+  addScore('assess_complete');
+  if (assessCorrect >= 8) addScore('assess_ace');
+}
+
+/* --- SLIDE 24: GRADUATION CERTIFICATE --- */
+function generateCert() {
+  var name = document.getElementById('certName').value.trim();
+  if (!name) return;
+  document.getElementById('certDisplayName').textContent = name;
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('certScores').innerHTML = 'Exploration Score: <strong class="text-orange">' + score + '</strong> | Speed Round: <strong class="text-teal">' + speedCorrect + '/10</strong> | Assessment: <strong class="text-success">' + assessCorrect + '/10</strong>';
+  document.getElementById('certArea').style.display = 'block';
+  document.getElementById('certArea').className = '';
+  addScore('cert_generated');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  var canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  document.body.appendChild(canvas);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var colors = ['#FF9900', '#00A8E1', '#34d399', '#fbbf24', '#f87171', '#a78bfa'];
+  for (var i = 0; i < 150; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 3 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: Math.random() * 8 + 4,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 10
+    });
+  }
+  var frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(function(p) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      ctx.restore();
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.rotation += p.rotSpeed;
+    });
+    frame++;
+    if (frame < 180) requestAnimationFrame(animate);
+    else document.body.removeChild(canvas);
+  }
+  animate();
+}
+
+function downloadCert() {
+  alert('Screenshot the certificate to save it! (PNG export requires html2canvas library)');
+}
+
+/* --- INITIALIZATION --- */
+function initAll() {
+  setTotalPossible(85);
+  showSlide(0);
+
+  /* Title slide particles */
+  if (document.getElementById('titleCanvas')) {
+    var canvas = document.getElementById('titleCanvas');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    drawParticles();
+  }
+
+  /* Init slides that need setup */
+  updateThinkBig(0);
+  initFrugal();
+  initDive();
+  initBackbone();
+  initDeliver();
+  initBroad();
+  initPrfaq();
+  tensionSwitch(0);
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', function(e) {
+    var tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prevSlide(); }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initAll);
+</script>
+</body>
+</html>
