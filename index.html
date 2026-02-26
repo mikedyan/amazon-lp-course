@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Leadership Principles — Interactive Course</title>
+<style>
+:root {
+  --bg: #0a0e17;
+  --bg-card: rgba(20, 28, 45, 0.85);
+  --bg-card-solid: #141c2d;
+  --orange: #FF9900;
+  --orange-dim: rgba(255, 153, 0, 0.15);
+  --teal: #00A8E1;
+  --teal-dim: rgba(0, 168, 225, 0.12);
+  --success: #34d399;
+  --success-dim: rgba(52, 211, 153, 0.15);
+  --error: #f87171;
+  --error-dim: rgba(248, 113, 113, 0.15);
+  --warning: #fbbf24;
+  --warning-dim: rgba(251, 191, 36, 0.15);
+  --amber: #f59e0b;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --border: rgba(255, 153, 0, 0.2);
+  --glass: rgba(10, 14, 23, 0.7);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+/* NAV BAR */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 56px;
+  background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-title {
+  font-weight: 700; font-size: 15px; color: var(--orange);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;
+}
+.nav-center { display: flex; align-items: center; gap: 8px; }
+.nav-dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; max-width: 400px; }
+.nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--text-dim); cursor: pointer;
+  transition: var(--transition); border: none; padding: 0;
+}
+.nav-dot.active { background: var(--orange); box-shadow: 0 0 8px var(--orange); transform: scale(1.3); }
+.nav-dot.visited { background: var(--teal); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-keys { font-size: 12px; color: var(--text-dim); }
+.nav-keys kbd {
+  display: inline-block; padding: 2px 6px; border-radius: 4px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+}
+.nav-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  padding: 6px 14px; border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 13px; transition: var(--transition);
+}
+.nav-btn:hover { border-color: var(--orange); color: var(--orange); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+/* PROGRESS BAR */
+.progress-bar {
+  position: fixed; top: 56px; left: 0; right: 0; height: 3px;
+  background: rgba(255,153,0,0.1); z-index: 999;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--orange), var(--teal));
+  transition: width 0.5s ease; width: 0%;
+}
+/* SCORE COUNTER */
+.score-float {
+  position: fixed; bottom: 24px; right: 24px; z-index: 900;
+  background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 18px; font-size: 13px; color: var(--text-muted);
+  transition: var(--transition);
+}
+.score-float span { color: var(--orange); font-weight: 700; }
+/* SLIDES */
+.slide-container {
+  margin-top: 60px; min-height: calc(100vh - 60px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+.slide {
+  display: none; width: 100%; max-width: 960px;
+  animation: slideIn 0.4s ease;
+}
+.slide.active { display: block; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.card-orange { border-color: rgba(255,153,0,0.3); }
+.card-teal { border-color: rgba(0,168,225,0.3); }
+.card-success { border-color: rgba(52,211,153,0.3); }
+/* TYPOGRAPHY */
+h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+h2 { font-size: 1.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; }
+.text-orange { color: var(--orange); }
+.text-teal { color: var(--teal); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--success); }
+.text-error { color: var(--error); }
+.text-center { text-align: center; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+/* BUTTONS */
+.btn {
+  display: inline-block; padding: 10px 24px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  border: none; transition: var(--transition); font-family: var(--font);
+}
+.btn-orange { background: var(--orange); color: #000; }
+.btn-orange:hover { background: #ffad33; transform: translateY(-1px); }
+.btn-teal { background: var(--teal); color: #000; }
+.btn-teal:hover { background: #33bce8; }
+.btn-outline {
+  background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+}
+.btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+.btn-outline.active { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* INSIGHT BOX */
+.insight {
+  border-left: 3px solid var(--orange); padding: 16px 20px;
+  background: var(--orange-dim); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: 16px 0; font-size: 14px;
+}
+.insight-teal { border-left-color: var(--teal); background: var(--teal-dim); }
+.insight-success { border-left-color: var(--success); background: var(--success-dim); }
+.insight-error { border-left-color: var(--error); background: var(--error-dim); }
+/* TERMINAL */
+.terminal {
+  background: #0c1018; border: 1px solid rgba(255,153,0,0.15);
+  border-radius: var(--radius); padding: 20px; font-family: var(--mono);
+  font-size: 13px; line-height: 1.7;
+}
+.terminal-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+.terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.terminal-prompt { color: var(--orange); font-weight: 700; white-space: nowrap; }
+.terminal-input {
+  flex: 1; background: transparent; border: none; color: var(--text);
+  font-family: var(--mono); font-size: 13px; outline: none; caret-color: var(--orange);
+}
+.terminal-output { color: var(--text-muted); white-space: pre-wrap; }
+.terminal-output .cmd { color: var(--teal); }
+.terminal-output .ok { color: var(--success); }
+.terminal-output .err { color: var(--error); }
+.terminal-output .warn { color: var(--warning); }
+.terminal-hint {
+  margin-top: 12px; padding: 8px 12px; background: rgba(0,168,225,0.08);
+  border-radius: var(--radius-sm); color: var(--text-dim); font-size: 12px;
+}
+/* DRAG AND DROP */
+.drag-zone {
+  min-height: 80px; border: 2px dashed var(--border); border-radius: var(--radius);
+  padding: 12px; display: flex; flex-wrap: wrap; gap: 8px;
+  transition: var(--transition);
+}
+.drag-zone.over { border-color: var(--orange); background: var(--orange-dim); }
+.drag-zone.correct { border-color: var(--success); background: var(--success-dim); }
+.drag-item {
+  padding: 8px 16px; background: var(--bg-card-solid); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: grab; font-size: 13px;
+  transition: var(--transition); user-select: none;
+}
+.drag-item:active { cursor: grabbing; opacity: 0.7; }
+.drag-item.placed { border-color: var(--teal); background: var(--teal-dim); }
+/* SLIDER */
+.range-slider {
+  -webkit-appearance: none; appearance: none; width: 100%;
+  height: 6px; border-radius: 3px; background: rgba(255,153,0,0.2);
+  outline: none; transition: var(--transition);
+}
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--orange); cursor: pointer;
+  box-shadow: 0 0 10px rgba(255,153,0,0.4);
+}
+/* TOGGLE */
+.toggle-group { display: flex; gap: 0; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
+.toggle-btn {
+  padding: 10px 24px; background: transparent; border: none;
+  color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 600;
+  transition: var(--transition); font-family: var(--font);
+}
+.toggle-btn.active { background: var(--orange); color: #000; }
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.4rem; }
+  .card { padding: 20px; }
+  .nav-dots { display: none; }
+}
+/* OPTION CARDS */
+.option-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; cursor: pointer;
+  transition: var(--transition); text-align: center;
+}
+.option-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+.option-card.selected { border-color: var(--orange); background: var(--orange-dim); }
+.option-card.correct { border-color: var(--success); background: var(--success-dim); }
+.option-card.wrong { border-color: var(--error); background: var(--error-dim); }
+/* QUIZ */
+.quiz-option {
+  display: block; width: 100%; text-align: left; padding: 14px 20px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); cursor: pointer;
+  font-size: 14px; transition: var(--transition); margin-bottom: 8px;
+  font-family: var(--font);
+}
+.quiz-option:hover:not(:disabled) { border-color: var(--teal); }
+.quiz-option.correct { border-color: var(--success); background: var(--success-dim); color: var(--success); }
+.quiz-option.wrong { border-color: var(--error); background: var(--error-dim); color: var(--error); }
+.quiz-option:disabled { cursor: default; opacity: 0.85; }
+/* STEP INDICATORS */
+.steps { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.step-num {
+  width: 36px; height: 36px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+  border: 2px solid var(--border); color: var(--text-dim); cursor: pointer;
+  transition: var(--transition); background: transparent;
+  font-family: var(--font);
+}
+.step-num.active { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+.step-num.done { border-color: var(--success); color: var(--success); background: var(--success-dim); }
+/* TIMER */
+.timer-bar {
+  height: 4px; background: rgba(0,168,225,0.2); border-radius: 2px; overflow: hidden;
+  margin-bottom: 16px;
+}
+.timer-fill {
+  height: 100%; background: var(--teal); transition: width 0.1s linear;
+  border-radius: 2px;
+}
+.timer-fill.urgent { background: var(--error); animation: timerPulse 0.5s infinite; }
+@keyframes timerPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+.timer-text { font-family: var(--mono); font-size: 14px; color: var(--teal); }
+.timer-text.urgent { color: var(--error); }
+/* CYCLE ITEM */
+.cycle-item {
+  padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px solid var(--border); transition: var(--transition);
+  font-size: 13px; margin-bottom: 6px; user-select: none;
+  display: flex; align-items: center; gap: 10px;
+}
+.cycle-item .state-badge {
+  padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; min-width: 60px; text-align: center;
+}
+.cycle-keep { border-color: var(--success); }
+.cycle-keep .state-badge { background: var(--success-dim); color: var(--success); }
+.cycle-remove { border-color: var(--error); text-decoration: line-through; opacity: 0.7; }
+.cycle-remove .state-badge { background: var(--error-dim); color: var(--error); }
+.cycle-modify { border-color: var(--warning); }
+.cycle-modify .state-badge { background: var(--warning-dim); color: var(--warning); }
+/* CONSEQUENCE PANEL */
+.consequence-panel {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-top: 16px;
+  animation: slideIn 0.3s ease;
+}
+.consequence-row {
+  display: flex; gap: 12px; padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.consequence-row:last-child { border-bottom: none; }
+.consequence-label { color: var(--text-dim); min-width: 120px; font-size: 13px; }
+.consequence-value { color: var(--text); font-size: 13px; }
+/* SVG CONTAINER */
+.svg-container { width: 100%; overflow: hidden; border-radius: var(--radius); }
+.svg-container svg { width: 100%; height: auto; }
+/* TEXTAREA */
+.edit-area {
+  width: 100%; min-height: 140px; padding: 16px; border-radius: var(--radius);
+  background: #0c1018; border: 1px solid var(--border); color: var(--text);
+  font-family: var(--mono); font-size: 13px; line-height: 1.6;
+  resize: vertical; outline: none; transition: border-color var(--transition);
+}
+.edit-area:focus { border-color: var(--orange); }
+/* CONFETTI CANVAS */
+#confetti-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 2000;
+}
+/* CERTIFICATE */
+.cert-wrapper { perspective: 1000px; display: flex; justify-content: center; }
+.cert-card {
+  width: 700px; max-width: 100%; padding: 48px; text-align: center;
+  background: linear-gradient(135deg, #141c2d 0%, #1a2440 50%, #141c2d 100%);
+  border: 2px solid var(--orange);
+  border-radius: var(--radius-lg);
+  position: relative; overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease;
+  box-shadow: 0 0 40px rgba(255,153,0,0.15), var(--shadow);
+}
+.cert-card::before {
+  content: ''; position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255,153,0,0.05), transparent, rgba(0,168,225,0.05), transparent);
+  animation: certShine 6s linear infinite;
+}
+@keyframes certShine { to { transform: rotate(360deg); } }
+.cert-title { font-size: 2rem; font-weight: 800; color: var(--orange); position: relative; z-index: 1; }
+.cert-subtitle { font-size: 1rem; color: var(--text-muted); position: relative; z-index: 1; margin-top: 8px; }
+.cert-name {
+  font-size: 2.2rem; font-weight: 700; margin: 24px 0;
+  background: linear-gradient(90deg, var(--orange), var(--teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; position: relative; z-index: 1;
+}
+.cert-detail { color: var(--text-muted); font-size: 14px; position: relative; z-index: 1; margin: 4px 0; }
+.cert-scores { display: flex; justify-content: center; gap: 32px; margin: 24px 0; position: relative; z-index: 1; }
+.cert-score-item { text-align: center; }
+.cert-score-val { font-size: 1.6rem; font-weight: 800; color: var(--orange); }
+.cert-score-label { font-size: 12px; color: var(--text-dim); }
+/* SPEED ROUND REVIEW */
+.review-item {
+  padding: 16px; margin-bottom: 12px; border-radius: var(--radius);
+  border: 2px solid var(--border);
+}
+.review-item.review-correct { border-color: var(--success); }
+.review-item.review-wrong { border-color: var(--error); }
+.review-option {
+  display: inline-block; padding: 4px 10px; margin: 3px; border-radius: 4px;
+  font-size: 12px; border: 1px solid var(--border);
+}
+.review-option.is-correct { border-color: var(--success); background: var(--success-dim); color: var(--success); font-weight: 700; }
+.review-option.is-wrong { border-color: var(--error); background: var(--error-dim); color: var(--error); text-decoration: line-through; }
+/* PATTERN MATCH */
+.match-item {
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); margin-bottom: 6px;
+  transition: var(--transition); font-size: 13px;
+}
+.match-item.matched { border-color: var(--success); background: var(--success-dim); }
+.match-item.partial { border-color: var(--warning); background: var(--warning-dim); }
+/* TITLE SLIDE SPECIFIC */
+.title-bg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  overflow: hidden; z-index: 0;
+}
+.title-bg canvas { width: 100%; height: 100%; }
+.title-content { position: relative; z-index: 1; text-align: center; padding: 40px 0; }
+.title-main {
+  font-size: 3.2rem; font-weight: 900; line-height: 1.1;
+  background: linear-gradient(135deg, var(--orange), #ffcc66, var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 16px;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+@keyframes titleGlow {
+  from { filter: drop-shadow(0 0 20px rgba(255,153,0,0.3)); }
+  to { filter: drop-shadow(0 0 40px rgba(255,153,0,0.6)); }
+}
+.title-sub {
+  font-size: 1.3rem; color: var(--text-muted); margin-bottom: 32px;
+  animation: fadeUp 1s ease 0.5s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.feature-badges {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 40px; animation: fadeUp 1s ease 0.8s both;
+}
+.feature-badge {
+  padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  background: var(--orange-dim); border: 1px solid rgba(255,153,0,0.3); color: var(--orange);
+}
+.title-start {
+  animation: fadeUp 1s ease 1.1s both;
+  display: inline-block; padding: 14px 40px; font-size: 16px;
+  background: linear-gradient(135deg, var(--orange), #ffad33);
+  color: #000; font-weight: 700; border: none; border-radius: var(--radius);
+  cursor: pointer; transition: var(--transition);
+  box-shadow: 0 4px 20px rgba(255,153,0,0.3);
+}
+.title-start:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(255,153,0,0.5); }
+/* PRINCIPLE HEADER */
+.lp-number {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%; font-weight: 800;
+  background: var(--orange); color: #000; font-size: 16px; margin-bottom: 12px;
+}
+.lp-quote {
+  font-style: italic; color: var(--text-muted); font-size: 14px;
+  border-left: 2px solid var(--orange); padding-left: 16px; margin: 16px 0;
+}
+/* BINARY SEARCH */
+.binary-option {
+  padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);
+  margin-bottom: 8px; font-size: 13px;
+}
+.binary-option:hover { border-color: var(--teal); }
+.binary-option.eliminated { opacity: 0.3; text-decoration: line-through; pointer-events: none; }
+.binary-option.found { border-color: var(--success); background: var(--success-dim); }
+/* SCALE VISUALIZATION */
+.scale-vis {
+  display: flex; align-items: flex-end; gap: 4px; height: 200px;
+  padding: 0 20px; margin: 24px 0;
+}
+.scale-bar {
+  flex: 1; border-radius: 4px 4px 0 0; transition: height 0.5s ease, background 0.5s ease;
+  min-width: 20px;
+}
+/* SYNC DIAGRAM */
+.sync-node {
+  padding: 16px 24px; border-radius: var(--radius); text-align: center;
+  border: 2px solid var(--border); transition: var(--transition);
+  font-weight: 600;
+}
+.sync-node.highlight { border-color: var(--orange); box-shadow: 0 0 20px rgba(255,153,0,0.3); }
+.sync-arrow {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim); font-size: 24px; transition: var(--transition);
+}
+.sync-arrow.active { color: var(--orange); }
+/* Hidden utility */
+.hidden { display: none !important; }
+/* Fade transition for content areas */
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-title">⚡ Amazon Leadership Principles</div>
+  <div class="nav-center">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← Prev</button>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Next →</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-keys"><kbd>←</kbd> <kbd>→</kbd> navigate</div>
+  </div>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- SCORE -->
+<div class="score-float">Explored: <span id="scoreDisplay">0</span> / <span id="scoreTotalDisplay">0</span></div>
+
+<!-- CONFETTI CANVAS -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ==================== SLIDES ==================== -->
+<div id="slidesWrapper">
+
+<!-- SLIDE 1: TITLE -->
+<div class="slide-container">
+<div class="slide" data-slide="0">
+  <div style="position:relative; min-height: 70vh; display:flex; align-items:center; justify-content:center;">
+    <canvas id="titleCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.4;"></canvas>
+    <div class="title-content">
+      <div style="font-size:14px;color:var(--teal);font-weight:600;letter-spacing:3px;margin-bottom:16px;animation:fadeUp 1s ease 0.2s both;">INTERACTIVE COURSE</div>
+      <div class="title-main">Amazon Leadership<br>Principles</div>
+      <div class="title-sub">The Operating System Behind Earth's Most Customer-Obsessed Company</div>
+      <div class="feature-badges">
+        <div class="feature-badge">🎯 16 Principles</div>
+        <div class="feature-badge">🧩 Interactive Exercises</div>
+        <div class="feature-badge">⚡ Speed Round</div>
+        <div class="feature-badge">🏆 Certificate</div>
+        <div class="feature-badge">📋 STAR Practice</div>
+      </div>
+      <button class="title-start" onclick="nextSlide()">Begin Your Day 1 →</button>
+      <div style="margin-top:24px;color:var(--text-dim);font-size:13px;animation:fadeUp 1s ease 1.4s both;">
+        24 interactive slides · ~30 minutes · Keyboard friendly
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 2: DAY 1 PHILOSOPHY (Scrubable Timeline) -->
+<div class="slide-container">
+<div class="slide" data-slide="1">
+  <div class="card">
+    <h2><span class="text-orange">📅</span> The Day 1 Philosophy</h2>
+    <p class="text-muted mb-16">Drag the timeline to explore how Amazon's Leadership Principles evolved from a garage startup to a global operating system.</p>
+    <input type="range" class="range-slider" id="timelineSlider" min="0" max="6" value="0" step="1" oninput="updateTimeline(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin:8px 0 24px;">
+      <span>1994</span><span>1997</span><span>2002</span><span>2005</span><span>2012</span><span>2021</span><span>Today</span>
+    </div>
+    <div class="card card-orange" id="timelineContent">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <span style="font-size:2rem;" id="timelineEmoji">🏠</span>
+        <div>
+          <h3 id="timelineTitle" class="text-orange">1994 — The Garage</h3>
+          <div class="text-muted" style="font-size:13px;" id="timelineYear">Where it all began</div>
+        </div>
+      </div>
+      <p id="timelineDesc" style="font-size:14px;">Jeff Bezos leaves D.E. Shaw to start an online bookstore from his Bellevue garage. The founding principle is already clear: <strong>start with the customer and work backwards</strong>. There are no formal "leadership principles" yet — just a relentless obsession with what customers want.</p>
+    </div>
+    <div class="insight" id="timelineInsight">
+      💡 <strong>Key Insight:</strong> "Day 1" means the company should always behave like a startup — hungry, customer-focused, and willing to experiment. "Day 2 is stasis. Followed by irrelevance. Followed by excruciating, painful decline." — Jeff Bezos
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 3: CUSTOMER OBSESSION (Consequence Explorer) -->
+<div class="slide-container">
+<div class="slide" data-slide="2">
+  <div class="card">
+    <div class="lp-number">1</div>
+    <h2>Customer Obsession</h2>
+    <p class="lp-quote">"Leaders start with the customer and work backwards. They work vigorously to earn and keep customer trust. Although leaders pay attention to competitors, they obsess over customers."</p>
+    <p class="text-muted mb-24" style="font-size:14px;">You're a product leader. A competitor just launched a flashy new feature. Choose your response:</p>
+    <div class="grid-2" id="custChoices">
+      <div class="option-card" onclick="custChoice(0)">
+        <div style="font-size:2rem;margin-bottom:8px;">🏃</div>
+        <h3 style="font-size:14px;">Copy the Feature</h3>
+        <p class="text-muted" style="font-size:12px;">Rush to build the same feature to match the competitor</p>
+      </div>
+      <div class="option-card" onclick="custChoice(1)">
+        <div style="font-size:2rem;margin-bottom:8px;">📊</div>
+        <h3 style="font-size:14px;">Research Customers</h3>
+        <p class="text-muted" style="font-size:12px;">Talk to customers first — do they actually need this?</p>
+      </div>
+      <div class="option-card" onclick="custChoice(2)">
+        <div style="font-size:2rem;margin-bottom:8px;">📋</div>
+        <h3 style="font-size:14px;">Write a PR/FAQ</h3>
+        <p class="text-muted" style="font-size:12px;">Work backwards from the customer press release</p>
+      </div>
+      <div class="option-card" onclick="custChoice(3)">
+        <div style="font-size:2rem;margin-bottom:8px;">⏳</div>
+        <h3 style="font-size:14px;">Wait and See</h3>
+        <p class="text-muted" style="font-size:12px;">Monitor if the competitor's feature gains traction</p>
+      </div>
+    </div>
+    <div id="custResult" class="hidden"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 4: OWNERSHIP (Toggle Comparison) -->
+<div class="slide-container">
+<div class="slide" data-slide="3">
+  <div class="card">
+    <div class="lp-number">2</div>
+    <h2>Ownership</h2>
+    <p class="lp-quote">"Leaders are owners. They think long term and don't sacrifice long-term value for short-term results. They act on behalf of the entire company, beyond just their own team. They never say 'that's not my job.'"</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Toggle between mindsets to see how Owners and Renters approach the same situations:</p>
+    <div style="display:flex;justify-content:center;margin-bottom:24px;">
+      <div class="toggle-group">
+        <button class="toggle-btn active" onclick="ownerToggle('owner')">🔑 Owner Mindset</button>
+        <button class="toggle-btn" onclick="ownerToggle('renter')">🏚️ Renter Mindset</button>
+      </div>
+    </div>
+    <div id="ownerContent">
+      <div class="grid-2" id="ownerGrid"></div>
+    </div>
+    <div id="ownerInsight" class="insight" style="margin-top:20px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 5: INVENT AND SIMPLIFY (Editable Text Exercise) -->
+<div class="slide-container">
+<div class="slide" data-slide="4">
+  <div class="card">
+    <div class="lp-number">3</div>
+    <h2>Invent and Simplify</h2>
+    <p class="lp-quote">"Leaders expect and require innovation and invention from their teams and always find ways to simplify. They are externally aware, look for new ideas from everywhere, and are not limited by 'not invented here.'"</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Below is a bloated product proposal. Edit it to cut at least 40% of the words while keeping the core value proposition. Great leaders simplify ruthlessly.</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="text-muted" style="font-size:12px;">Original: <strong id="origWordCount">0</strong> words</span>
+      <span style="font-size:12px;">Your count: <strong id="editWordCount" class="text-orange">0</strong> words
+        <span id="editTarget" class="text-muted"></span>
+      </span>
+    </div>
+    <textarea class="edit-area" id="simplifyArea" oninput="checkSimplify()"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn btn-orange" onclick="submitSimplify()">Check Simplification</button>
+      <button class="btn btn-outline" onclick="resetSimplify()">Reset</button>
+    </div>
+    <div id="simplifyResult" class="hidden" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 6: ARE RIGHT, A LOT (Dynamic SVG) -->
+<div class="slide-container">
+<div class="slide" data-slide="5">
+  <div class="card">
+    <div class="lp-number">4</div>
+    <h2>Are Right, A Lot</h2>
+    <p class="lp-quote">"Leaders are right a lot. They have strong judgment and good instincts. They seek diverse perspectives and work to disconfirm their beliefs."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">This decision quality model shows how seeking diverse perspectives and actively trying to disconfirm your beliefs leads to better outcomes. Click the buttons to build the model:</p>
+    <div class="btn-group mb-24">
+      <button class="btn btn-outline" id="svg-btn-0" onclick="svgStep(0)">1. Initial Belief</button>
+      <button class="btn btn-outline" id="svg-btn-1" onclick="svgStep(1)" disabled>2. Add Perspectives</button>
+      <button class="btn btn-outline" id="svg-btn-2" onclick="svgStep(2)" disabled>3. Disconfirm</button>
+      <button class="btn btn-outline" id="svg-btn-3" onclick="svgStep(3)" disabled>4. Refined Decision</button>
+    </div>
+    <div class="svg-container" style="background:#0c1018;border-radius:var(--radius);padding:20px;">
+      <svg id="decisionSvg" viewBox="0 0 700 350" style="width:100%;height:auto;"></svg>
+    </div>
+    <div id="svgExplain" class="insight" style="margin-top:16px;">Click "1. Initial Belief" to start building the decision quality model.</div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 7: LEARN AND BE CURIOUS (Progressive Reveal) -->
+<div class="slide-container">
+<div class="slide" data-slide="6">
+  <div class="card">
+    <div class="lp-number">5</div>
+    <h2>Learn and Be Curious</h2>
+    <p class="lp-quote">"Leaders are never done learning and always seek to improve themselves. They are curious about new possibilities and act to explore them."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Build the Amazon Learning Flywheel step by step. Each step unlocks the next — showing how curiosity compounds:</p>
+    <div class="steps" id="learnSteps"></div>
+    <div class="card card-teal" id="learnContent" style="min-height:120px;">
+      <p class="text-muted">Click Step 1 to begin building the flywheel.</p>
+    </div>
+    <div style="margin-top:16px;text-align:center;">
+      <svg id="flywheelSvg" viewBox="0 0 300 300" style="width:240px;height:240px;"></svg>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 8: HIRE AND DEVELOP THE BEST (Drag-and-Drop) -->
+<div class="slide-container">
+<div class="slide" data-slide="7">
+  <div class="card">
+    <div class="lp-number">6</div>
+    <h2>Hire and Develop the Best</h2>
+    <p class="lp-quote">"Leaders raise the performance bar with every hire and promotion. They recognize exceptional talent, and willingly move them throughout the organization."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">You're a Bar Raiser in Amazon's interview process. Sort these candidate signals into the right category. Drag each item to where it belongs:</p>
+    <div class="grid-2">
+      <div>
+        <h3 class="text-success mb-8" style="font-size:14px;">✅ Raises the Bar</h3>
+        <div class="drag-zone" id="dropHire" ondrop="hireDrop(event,'hire')" ondragover="hireDragOver(event)" ondragleave="hireDragLeave(event)"></div>
+      </div>
+      <div>
+        <h3 class="text-error mb-8" style="font-size:14px;">❌ Does Not Raise the Bar</h3>
+        <div class="drag-zone" id="dropReject" ondrop="hireDrop(event,'reject')" ondragover="hireDragOver(event)" ondragleave="hireDragLeave(event)"></div>
+      </div>
+    </div>
+    <h3 class="text-muted mb-8" style="font-size:14px;margin-top:16px;">📋 Candidate Signals</h3>
+    <div class="drag-zone" id="hireSource" ondrop="hireDrop(event,'source')" ondragover="hireDragOver(event)" ondragleave="hireDragLeave(event)"></div>
+    <div id="hireResult" class="hidden" style="margin-top:16px;"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="checkHire()" id="checkHireBtn">Check Sorting</button>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 9: INSIST ON THE HIGHEST STANDARDS (Cycling Action Editor) -->
+<div class="slide-container">
+<div class="slide" data-slide="8">
+  <div class="card">
+    <div class="lp-number">7</div>
+    <h2>Insist on the Highest Standards</h2>
+    <p class="lp-quote">"Leaders have relentlessly high standards — many people may think these standards are unreasonably high. Leaders are continually raising the bar and drive their teams to deliver high-quality products, services, and processes."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">You're reviewing a product launch checklist. Click each item to cycle through: <span class="text-success">KEEP</span> → <span class="text-error">REMOVE</span> → <span class="text-warning">MODIFY</span> → <span class="text-success">KEEP</span>. Find the items that don't meet the highest standards.</p>
+    <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;">
+      <span>✅ Keep: <strong id="keepCount" class="text-success">0</strong></span>
+      <span>❌ Remove: <strong id="removeCount" class="text-error">0</strong></span>
+      <span>⚠️ Modify: <strong id="modifyCount" class="text-warning">0</strong></span>
+    </div>
+    <div id="cycleItems"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="checkCycle()">Submit Review</button>
+    <div id="cycleResult" class="hidden" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 10: THINK BIG (Slider/Scale) -->
+<div class="slide-container">
+<div class="slide" data-slide="9">
+  <div class="card">
+    <div class="lp-number">8</div>
+    <h2>Think Big</h2>
+    <p class="lp-quote">"Thinking small is a self-fulfilling prophecy. Leaders create and communicate a bold direction that inspires results. They think differently and look around corners for ways to serve customers."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Drag the slider to see how the same problem looks at different scales of ambition. Watch how impact, complexity, and customer value change:</p>
+    <input type="range" class="range-slider" id="thinkSlider" min="0" max="4" value="0" step="1" oninput="updateThinkBig(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin:8px 0 16px;">
+      <span>Tiny Fix</span><span>Small</span><span>Medium</span><span>Big</span><span>Moonshot</span>
+    </div>
+    <div class="grid-2">
+      <div class="card card-orange" id="thinkProblem">
+        <h3 class="text-orange mb-8" style="font-size:14px;">The Problem</h3>
+        <p id="thinkProblemText" style="font-size:14px;"></p>
+      </div>
+      <div class="card card-teal" id="thinkSolution">
+        <h3 class="text-teal mb-8" style="font-size:14px;">The Solution</h3>
+        <p id="thinkSolutionText" style="font-size:14px;"></p>
+      </div>
+    </div>
+    <div class="scale-vis" id="thinkBars"></div>
+    <div style="display:flex;justify-content:space-around;font-size:11px;color:var(--text-dim);">
+      <span>Customer Impact</span><span>Team Size</span><span>Timeline</span><span>Revenue Potential</span><span>Innovation</span>
+    </div>
+    <div id="thinkInsight" class="insight" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 11: BIAS FOR ACTION (Simulated Terminal) -->
+<div class="slide-container">
+<div class="slide" data-slide="10">
+  <div class="card">
+    <div class="lp-number">9</div>
+    <h2>Bias for Action</h2>
+    <p class="lp-quote">"Speed matters in business. Many decisions and actions are reversible and do not need extensive study. We value calculated risk taking."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Use the Decision Terminal to classify business decisions. Type <code>help</code> for available commands.</p>
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dot" style="background:#ff5f57;"></div>
+        <div class="terminal-dot" style="background:#febc2e;"></div>
+        <div class="terminal-dot" style="background:#28c840;"></div>
+        <span style="color:var(--text-dim);font-size:12px;margin-left:8px;">decision-classifier v1.0</span>
+      </div>
+      <div class="terminal-output" id="termOutput"><span class="ok">Welcome to the Amazon Decision Classifier.</span>
+<span class="warn">Classify decisions as one-way doors (Type 1) or two-way doors (Type 2).</span>
+<span class="">Type 'help' for commands, or 'scenario' to get a decision to classify.</span>
+</div>
+      <div class="terminal-input-line">
+        <span class="terminal-prompt">λ</span>
+        <input class="terminal-input" id="termInput" placeholder="Type a command..." onkeydown="if(event.key==='Enter')termSubmit()">
+      </div>
+      <div class="terminal-hint" id="termHint">💡 Start with <code>scenario</code> to get your first decision to classify.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 12: FRUGALITY (Binary Search / Elimination) -->
+<div class="slide-container">
+<div class="slide" data-slide="11">
+  <div class="card">
+    <div class="lp-number">10</div>
+    <h2>Frugality</h2>
+    <p class="lp-quote">"Accomplish more with less. Constraints breed resourcefulness, self-sufficiency and invention. There are no extra points for growing headcount, budget size, or fixed expense."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Your team has a $100K budget for a new feature. Below are 8 approaches — only ONE delivers maximum customer value within budget. Use evidence to eliminate options. Click "Investigate" to test an approach, then eliminate the expensive ones.</p>
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <span class="text-muted" style="font-size:13px;">Budget: <strong class="text-orange">$100K</strong></span>
+      <span class="text-muted" style="font-size:13px;">Remaining options: <strong id="frugalRemaining" class="text-teal">8</strong></span>
+      <span class="text-muted" style="font-size:13px;">Investigations: <strong id="frugalInvestigations" class="text-warning">0</strong></span>
+    </div>
+    <div id="frugalOptions"></div>
+    <div id="frugalResult" class="hidden" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 13: EARN TRUST (Animated Sync Diagram) -->
+<div class="slide-container">
+<div class="slide" data-slide="12">
+  <div class="card">
+    <div class="lp-number">11</div>
+    <h2>Earn Trust</h2>
+    <p class="lp-quote">"Leaders listen attentively, speak candidly, and treat others respectfully. They are vocally self-critical, even when doing so is awkward or embarrassing."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Trust flows between people like data between systems. Click each trust-building action to see how it flows through the organization:</p>
+    <div class="btn-group mb-24">
+      <button class="btn btn-outline" id="trust-btn-0" onclick="trustAction(0)">👂 Listen</button>
+      <button class="btn btn-outline" id="trust-btn-1" onclick="trustAction(1)">💬 Speak Candidly</button>
+      <button class="btn btn-outline" id="trust-btn-2" onclick="trustAction(2)">🪞 Self-Critical</button>
+      <button class="btn btn-outline" id="trust-btn-3" onclick="trustAction(3)">📊 Benchmark</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;" id="trustDiagram">
+      <div class="sync-node" id="trustNode0" style="min-width:120px;">👤 You</div>
+      <div class="sync-arrow" id="trustArrow01">→</div>
+      <div class="sync-node" id="trustNode1" style="min-width:120px;">👥 Team</div>
+      <div class="sync-arrow" id="trustArrow12">→</div>
+      <div class="sync-node" id="trustNode2" style="min-width:120px;">🏢 Org</div>
+      <div class="sync-arrow" id="trustArrow23">→</div>
+      <div class="sync-node" id="trustNode3" style="min-width:120px;">🌍 Customers</div>
+    </div>
+    <div id="trustExplain" class="insight" style="margin-top:20px;">Click a trust-building action above to see how it flows through the organization.</div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 14: DIVE DEEP (Real-Time Pattern Matching) -->
+<div class="slide-container">
+<div class="slide" data-slide="13">
+  <div class="card">
+    <div class="lp-number">12</div>
+    <h2>Dive Deep</h2>
+    <p class="lp-quote">"Leaders operate at all levels, stay connected to the details, audit frequently, and are skeptical when metrics and anecdote differ. No task is beneath them."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">You're investigating a revenue drop. Type keywords to search the dashboard metrics below. Find the root cause by matching patterns across data:</p>
+    <input type="text" style="width:100%;padding:12px 16px;border-radius:var(--radius-sm);background:#0c1018;border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;margin-bottom:16px;" id="diveInput" placeholder="Type to search metrics (try: conversion, latency, error, checkout)..." oninput="diveSearch(this.value)">
+    <div class="grid-2" id="diveMetrics"></div>
+    <div id="diveResult" class="hidden" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 15: HAVE BACKBONE; DISAGREE AND COMMIT (Sequential Step Flow) -->
+<div class="slide-container">
+<div class="slide" data-slide="14">
+  <div class="card">
+    <div class="lp-number">13</div>
+    <h2>Have Backbone; Disagree and Commit</h2>
+    <p class="lp-quote">"Leaders are obligated to respectfully challenge decisions when they disagree, even when doing so is uncomfortable or exhausting. Once a decision is determined, they commit wholly."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Walk through a real disagreement scenario. Click each step to advance through the process of productive conflict:</p>
+    <div class="steps" id="backboneSteps"></div>
+    <div class="card card-orange" id="backboneContent" style="min-height:100px;">
+      <p class="text-muted">Click Step 1 to begin the disagreement scenario.</p>
+    </div>
+    <div id="backboneInsight" class="hidden"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 16: DELIVER RESULTS (Drag-and-Drop) -->
+<div class="slide-container">
+<div class="slide" data-slide="15">
+  <div class="card">
+    <div class="lp-number">14</div>
+    <h2>Deliver Results</h2>
+    <p class="lp-quote">"Leaders focus on the key inputs for their business and deliver them with the right quality and in a timely fashion. Despite setbacks, they rise to the occasion and never settle."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">You have 3 weeks and limited resources. Drag these tasks into priority order (top = highest priority). Focus on key inputs that drive results:</p>
+    <div id="deliverList" style="min-height:100px;"></div>
+    <button class="btn btn-orange" style="margin-top:12px;" onclick="checkDeliver()">Check Prioritization</button>
+    <div id="deliverResult" class="hidden" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 17: EARTH'S BEST EMPLOYER (Consequence Explorer) -->
+<div class="slide-container">
+<div class="slide" data-slide="16">
+  <div class="card">
+    <div class="lp-number">15</div>
+    <h2>Strive to be Earth's Best Employer</h2>
+    <p class="lp-quote">"Leaders work every day to create a safer, more productive, higher performing, more diverse, and more just work environment. They lead with empathy, have fun at work, and make it easy for others to have fun."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">You're an engineering director. Choose a workplace policy to see its impact on your team:</p>
+    <div class="grid-2" id="employerChoices">
+      <div class="option-card" onclick="employerChoice(0)">
+        <div style="font-size:2rem;margin-bottom:8px;">🏠</div>
+        <h3 style="font-size:14px;">Flexible Remote Work</h3>
+        <p class="text-muted" style="font-size:12px;">Let teams decide their own work arrangements</p>
+      </div>
+      <div class="option-card" onclick="employerChoice(1)">
+        <div style="font-size:2rem;margin-bottom:8px;">📈</div>
+        <h3 style="font-size:14px;">Mandatory Growth Plans</h3>
+        <p class="text-muted" style="font-size:12px;">Every employee gets a career development roadmap</p>
+      </div>
+      <div class="option-card" onclick="employerChoice(2)">
+        <div style="font-size:2rem;margin-bottom:8px;">🛡️</div>
+        <h3 style="font-size:14px;">Psychological Safety Training</h3>
+        <p class="text-muted" style="font-size:12px;">Invest in building a speak-up culture</p>
+      </div>
+      <div class="option-card" onclick="employerChoice(3)">
+        <div style="font-size:2rem;margin-bottom:8px;">🎮</div>
+        <h3 style="font-size:14px;">Fun & Team Building</h3>
+        <p class="text-muted" style="font-size:12px;">Regular team events, hackathons, celebration rituals</p>
+      </div>
+    </div>
+    <div id="employerResult" class="hidden"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 18: BROAD RESPONSIBILITY (Puzzle with Wrong-Answer Feedback) -->
+<div class="slide-container">
+<div class="slide" data-slide="17">
+  <div class="card">
+    <div class="lp-number">16</div>
+    <h2>Success and Scale Bring Broad Responsibility</h2>
+    <p class="lp-quote">"We started in a garage, but we're not there anymore. We are big, we impact the world, and we are far from perfect. We must be humble and thoughtful about even the secondary effects of our actions."</p>
+    <p class="text-muted mb-16" style="font-size:14px;">Amazon's new delivery drone program will reduce delivery times but raises concerns. What's the BEST approach?</p>
+    <div id="broadQuiz"></div>
+    <div id="broadResult" class="hidden" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 19: WORKING BACKWARDS / PR-FAQ (Progressive Reveal) -->
+<div class="slide-container">
+<div class="slide" data-slide="18">
+  <div class="card">
+    <h2><span class="text-orange">📝</span> Working Backwards: The PR/FAQ</h2>
+    <p class="text-muted mb-16" style="font-size:14px;">Amazon's most powerful mechanism: start with the press release, then work backwards to build it. Reveal each step of the process:</p>
+    <div class="steps" id="prfaqSteps"></div>
+    <div class="card card-orange" id="prfaqContent" style="min-height:120px;">
+      <p class="text-muted">Click Step 1 to begin learning the Working Backwards process.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 20: LPs IN TENSION (Toggle Comparison) -->
+<div class="slide-container">
+<div class="slide" data-slide="19">
+  <div class="card">
+    <h2><span class="text-teal">⚖️</span> When Principles Collide</h2>
+    <p class="text-muted mb-16" style="font-size:14px;">Leadership Principles sometimes pull in opposite directions. Toggle between tension pairs to understand how leaders navigate conflict:</p>
+    <div style="display:flex;justify-content:center;margin-bottom:24px;">
+      <div class="toggle-group" id="tensionToggle">
+        <button class="toggle-btn active" onclick="tensionSwitch(0)">Speed vs Quality</button>
+        <button class="toggle-btn" onclick="tensionSwitch(1)">Frugal vs Bold</button>
+        <button class="toggle-btn" onclick="tensionSwitch(2)">Own vs Trust</button>
+      </div>
+    </div>
+    <div class="grid-2" id="tensionPanels"></div>
+    <div id="tensionInsight" class="insight" style="margin-top:16px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 21: STAR METHOD (Simulated Terminal) -->
+<div class="slide-container">
+<div class="slide" data-slide="20">
+  <div class="card">
+    <h2><span class="text-orange">⭐</span> STAR Method Practice</h2>
+    <p class="text-muted mb-16" style="font-size:14px;">Amazon interviews use behavioral questions answered with STAR format. Use this terminal to practice structuring your answers. Type <code>help</code> for commands.</p>
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dot" style="background:#ff5f57;"></div>
+        <div class="terminal-dot" style="background:#febc2e;"></div>
+        <div class="terminal-dot" style="background:#28c840;"></div>
+        <span style="color:var(--text-dim);font-size:12px;margin-left:8px;">star-coach v1.0</span>
+      </div>
+      <div class="terminal-output" id="starOutput"><span class="ok">Welcome to the STAR Method Interview Coach.</span>
+<span class="">The STAR method: <span class="cmd">S</span>ituation → <span class="cmd">T</span>ask → <span class="cmd">A</span>ction → <span class="cmd">R</span>esult</span>
+<span class="">Type 'help' for commands or 'question' to get a practice prompt.</span>
+</div>
+      <div class="terminal-input-line">
+        <span class="terminal-prompt">⭐</span>
+        <input class="terminal-input" id="starInput" placeholder="Type a command..." onkeydown="if(event.key==='Enter')starSubmit()">
+      </div>
+      <div class="terminal-hint" id="starHint">💡 Start with <code>question</code> to get an interview question to practice.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 22: SPEED ROUND -->
+<div class="slide-container">
+<div class="slide" data-slide="21">
+  <div class="card">
+    <h2><span class="text-warning">⚡</span> Speed Round</h2>
+    <p class="text-muted mb-16" style="font-size:14px;" id="speedIntro">Test your recall! 10 randomly selected questions, 15 seconds each. Wrong answers and timeouts count against you.</p>
+    <div id="speedContent">
+      <div style="text-align:center;padding:40px 0;">
+        <button class="btn btn-orange" style="font-size:18px;padding:16px 48px;" onclick="startSpeedRound()">⚡ Start Speed Round</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 23: KNOWLEDGE ASSESSMENT -->
+<div class="slide-container">
+<div class="slide" data-slide="22">
+  <div class="card">
+    <h2><span class="text-teal">🧠</span> Knowledge Assessment</h2>
+    <p class="text-muted mb-16" style="font-size:14px;" id="assessIntro">10 deep understanding questions. Take your time — this tests how well you've internalized the principles.</p>
+    <div id="assessContent">
+      <div style="text-align:center;padding:40px 0;">
+        <button class="btn btn-teal" style="font-size:18px;padding:16px 48px;" onclick="startAssessment()">🧠 Begin Assessment</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SLIDE 24: GRADUATION CERTIFICATE -->
+<div class="slide-container">
+<div class="slide" data-slide="23">
+  <div class="card" style="text-align:center;">
+    <h2><span class="text-orange">🎓</span> Graduation</h2>
+    <p class="text-muted mb-24" style="font-size:14px;">Enter your name to generate your certificate of completion.</p>
+    <div style="max-width:400px;margin:0 auto 24px;">
+      <input type="text" id="certName" placeholder="Your name" style="width:100%;padding:12px 16px;border-radius:var(--radius-sm);background:#0c1018;border:1px solid var(--border);color:var(--text);font-size:16px;text-align:center;outline:none;">
+      <button class="btn btn-orange" style="margin-top:12px;width:100%;" onclick="generateCert()">🎓 Generate Certificate</button>
+    </div>
+    <div id="certArea" class="hidden">
+      <div class="cert-wrapper">
+        <div class="cert-card" id="certCard">
+          <div class="cert-title">🏆 Certificate of Completion</div>
+          <div class="cert-subtitle">Amazon Leadership Principles — Interactive Course</div>
+          <div class="cert-name" id="certDisplayName"></div>
+          <div class="cert-detail">has demonstrated mastery of Amazon's 16 Leadership Principles</div>
+          <div class="cert-detail" style="margin-top:4px;">through interactive exercises, analysis, and assessment</div>
+          <div class="cert-scores" id="certScores"></div>
+          <div class="cert-detail" id="certDate" style="margin-top:16px;"></div>
+          <div style="margin-top:16px;font-size:13px;color:var(--text-dim);position:relative;z-index:1;">
+            "It's always Day 1."
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:24px;" onclick="downloadCert()">📥 Download as PNG</button>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- end slidesWrapper -->
+
+<script>
+/* ===================== GLOBAL STATE ===================== */
+var TOTAL_SLIDES = 24;
+var currentSlide = 0;
+var score = 0;
+var totalPossible = 0;
+var visitedSlides = new Set();
+var interactionDone = {};
+
+function addScore(key, pts) {
+  if (interactionDone[key]) return;
+  interactionDone[key] = true;
+  score += (pts || 1);
+  document.getElementById('scoreDisplay').textContent = score;
+}
+
+function setTotalPossible(n) {
+  totalPossible = n;
+  document.getElementById('scoreTotalDisplay').textContent = n;
+}
+
+/* ===================== NAVIGATION ===================== */
+function showSlide(idx) {
+  if (idx < 0 || idx >= TOTAL_SLIDES) return;
+  var slides = document.querySelectorAll('.slide');
+  slides.forEach(function(s) { s.classList.remove('active'); });
+  slides[idx].classList.add('active');
+  currentSlide = idx;
+  visitedSlides.add(idx);
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Init slide-specific content on first visit
+  if (typeof slideInits[idx] === 'function' && !slideInits[idx]._done) {
+    slideInits[idx]();
+    slideInits[idx]._done = true;
+  }
+}
+function nextSlide() { showSlide(currentSlide + 1); }
+function prevSlide() { showSlide(currentSlide - 1); }
+function updateNav() {
+  document.getElementById('prevBtn').disabled = currentSlide === 0;
+  document.getElementById('nextBtn').disabled = currentSlide === TOTAL_SLIDES - 1;
+  var pct = ((currentSlide + 1) / TOTAL_SLIDES) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  var dots = document.querySelectorAll('.nav-dot');
+  dots.forEach(function(d, i) {
+    d.classList.remove('active', 'visited');
+    if (i === currentSlide) d.classList.add('active');
+    else if (visitedSlides.has(i)) d.classList.add('visited');
+  });
+}
+// Build nav dots
+(function() {
+  var dotsEl = document.getElementById('navDots');
+  for (var i = 0; i < TOTAL_SLIDES; i++) {
+    var dot = document.createElement('button');
+    dot.className = 'nav-dot';
+    dot.setAttribute('data-idx', i);
+    dot.onclick = (function(idx) { return function() { showSlide(idx); }; })(i);
+    dotsEl.appendChild(dot);
+  }
+})();
+// Keyboard
+document.addEventListener('keydown', function(e) {
+  var tag = document.activeElement.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prevSlide(); }
+});
+
+/* ===================== SLIDE INITIALIZERS ===================== */
+var slideInits = {};
+
+/* --- SLIDE 1: TITLE CANVAS PARTICLES --- */
+slideInits[0] = function() {
+  var canvas = document.getElementById('titleCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = canvas.offsetHeight * 2;
+  var particles = [];
+  for (var i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 1,
+      dx: (Math.random() - 0.5) * 0.5,
+      dy: (Math.random() - 0.5) * 0.5,
+      color: Math.random() > 0.5 ? '#FF9900' : '#00A8E1'
+    });
+  }
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(function(p) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = 0.6;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    // Draw connections
+    ctx.globalAlpha = 0.1;
+    ctx.strokeStyle = '#FF9900';
+    for (var a = 0; a < particles.length; a++) {
+      for (var b = a + 1; b < particles.length; b++) {
+        var dist = Math.hypot(particles[a].x - particles[b].x, particles[a].y - particles[b].y);
+        if (dist < 150) {
+          ctx.beginPath();
+          ctx.moveTo(particles[a].x, particles[a].y);
+          ctx.lineTo(particles[b].x, particles[b].y);
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+};
+
+/* --- SLIDE 2: TIMELINE DATA --- */
+var timelineData = [
+  { emoji: '🏠', title: '1994 — The Garage', year: 'Where it all began', desc: 'Jeff Bezos leaves D.E. Shaw to start an online bookstore from his Bellevue garage. The founding principle is already clear: <strong>start with the customer and work backwards</strong>. There are no formal "leadership principles" yet — just a relentless obsession with what customers want.', insight: '💡 <strong>Key Insight:</strong> "Day 1" means the company should always behave like a startup — hungry, customer-focused, and willing to experiment. "Day 2 is stasis. Followed by irrelevance. Followed by excruciating, painful decline." — Jeff Bezos' },
+  { emoji: '📈', title: '1997 — The IPO Letter', year: 'Setting the foundation', desc: 'Bezos writes his first shareholder letter, declaring: "It\'s all about the long term." He articulates the core philosophy — <strong>obsess over customers, make bold bets, think in decades</strong>. This letter is still attached to every annual report. The seeds of the Leadership Principles are planted here.', insight: '💡 <strong>Key Insight:</strong> The 1997 letter introduced ideas that became formal LPs: Customer Obsession, Ownership (long-term thinking), Bias for Action, Hire and Develop the Best, and Frugality.' },
+  { emoji: '🏗️', title: '2002 — Platform Thinking', year: 'Services become the architecture', desc: 'The famous "API Mandate" memo: all teams must expose their functionality through service interfaces. This <strong>forces ownership</strong> — every team runs what they build. It breeds <strong>Invent and Simplify</strong> and <strong>Bias for Action</strong> because small autonomous teams can move fast.', insight: '💡 <strong>Key Insight:</strong> This architectural decision was the origin of AWS. An internal infrastructure problem became a trillion-dollar business — the ultimate "Think Big" moment.' },
+  { emoji: '📋', title: '2005 — LPs Formalized', year: 'The operating system emerges', desc: 'Amazon codifies 14 Leadership Principles as a formal framework. They\'re embedded into hiring (every interview loop has a "Bar Raiser"), performance reviews, and daily decision-making. <strong>The LPs become the common language</strong> — the operating system of the company.', insight: '💡 <strong>Key Insight:</strong> The LPs aren\'t motivational posters — they\'re decision-making tools. When two leaders disagree, they reference the same principles to find common ground.' },
+  { emoji: '📦', title: '2012 — Fulfillment Revolution', year: 'Principles at massive scale', desc: 'Amazon is now shipping billions of items with same-day and next-day delivery. The principles face their toughest test: maintaining <strong>Insist on the Highest Standards</strong> and <strong>Customer Obsession</strong> at unprecedented scale. The "Dive Deep" principle becomes critical — leaders must audit metrics across millions of operations.', insight: '💡 <strong>Key Insight:</strong> Scale doesn\'t change the principles — it tests whether you really believe them. Frugality at scale means automation and efficiency, not cutting corners.' },
+  { emoji: '🌍', title: '2021 — Two New Principles', year: 'Expanding the responsibility', desc: 'Amazon adds two new Leadership Principles: <strong>"Strive to be Earth\'s Best Employer"</strong> and <strong>"Success and Scale Bring Broad Responsibility."</strong> After decades of growth, Amazon acknowledges that being the world\'s largest employer and one of the biggest companies demands broader thinking about impact.', insight: '💡 <strong>Key Insight:</strong> The addition of these principles shows the LPs are a living document. They evolve as the company\'s impact and responsibilities grow.' },
+  { emoji: '🚀', title: 'Today — Your Day 1', year: 'The principles in action', desc: 'With 16 Leadership Principles, Amazon\'s operating system is more comprehensive than ever. These principles aren\'t just for Amazon employees — they\'re a <strong>powerful framework for any leader</strong> making decisions under uncertainty. Today, you\'ll learn to think with these principles.', insight: '💡 <strong>Key Insight:</strong> The best time to adopt these principles was 20 years ago. The second best time is now. This is YOUR Day 1.' }
+];
+function updateTimeline(val) {
+  var d = timelineData[parseInt(val)];
+  document.getElementById('timelineEmoji').textContent = d.emoji;
+  document.getElementById('timelineTitle').innerHTML = d.title;
+  document.getElementById('timelineYear').textContent = d.year;
+  document.getElementById('timelineDesc').innerHTML = d.desc;
+  document.getElementById('timelineInsight').innerHTML = d.insight;
+  addScore('timeline_' + val);
+}
+slideInits[1] = function() { totalPossible += 7; };
+
+/* --- SLIDE 3: CUSTOMER OBSESSION (Consequence Explorer) --- */
+var custData = [
+  { title: '🏃 Copy the Feature', impact: 'Moderate Risk', rows: [
+    { label: 'Customer Value', value: 'Unknown — you\'re solving the competitor\'s problem, not yours' },
+    { label: 'Speed', value: 'Fast to market, but building the wrong thing fast is still waste' },
+    { label: 'LP Alignment', value: '❌ This is competitor obsession, not customer obsession' },
+    { label: 'Long-term Effect', value: 'You\'re always reacting, never leading. You become a fast follower.' }
+  ]},
+  { title: '📊 Research Customers', impact: 'Strong Approach', rows: [
+    { label: 'Customer Value', value: 'High — you learn what customers actually need, not what competitors think' },
+    { label: 'Speed', value: 'Takes 1-2 weeks but prevents months of wasted engineering' },
+    { label: 'LP Alignment', value: '✅ Starts with the customer. Data-driven. Earns trust.' },
+    { label: 'Long-term Effect', value: 'Builds institutional knowledge about customer needs' }
+  ]},
+  { title: '📋 Write a PR/FAQ', impact: 'Best Practice', rows: [
+    { label: 'Customer Value', value: 'Maximum — forces you to articulate the customer benefit before building anything' },
+    { label: 'Speed', value: 'Feels slow at first but dramatically accelerates alignment' },
+    { label: 'LP Alignment', value: '✅ The Amazon Way. Working Backwards from the customer press release.' },
+    { label: 'Long-term Effect', value: 'Creates a clear narrative that aligns the entire team on WHY before HOW' }
+  ]},
+  { title: '⏳ Wait and See', impact: 'Risky Passivity', rows: [
+    { label: 'Customer Value', value: 'Zero — customers don\'t benefit from your inaction' },
+    { label: 'Speed', value: 'No speed at all. You\'re choosing comfort over action.' },
+    { label: 'LP Alignment', value: '❌ Violates Bias for Action AND Customer Obsession' },
+    { label: 'Long-term Effect', value: 'Competitor builds market share while you watch' }
+  ]}
+];
+function custChoice(idx) {
+  var cards = document.querySelectorAll('#custChoices .option-card');
+  cards.forEach(function(c, i) {
+    c.classList.remove('selected');
+    if (i === idx) c.classList.add('selected');
+  });
+  var d = custData[idx];
+  var html = '<div class="consequence-panel"><h3 style="margin-bottom:12px;">' + d.title + ' — <span class="text-teal">' + d.impact + '</span></h3>';
+  d.rows.forEach(function(r) {
+    html += '<div class="consequence-row"><div class="consequence-label">' + r.label + '</div><div class="consequence-value">' + r.value + '</div></div>';
+  });
+  html += '</div>';
+  var el = document.getElementById('custResult');
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+  addScore('cust_' + idx);
+}
+slideInits[2] = function() { totalPossible += 4; setTotalPossible(totalPossible); };
+
+/* --- SLIDE 4: OWNERSHIP (Toggle Comparison) --- */
+var ownerData = {
+  owner: [
+    { icon: '🔧', title: 'Broken Process', desc: 'Files a ticket AND starts fixing it. Doesn\'t wait for someone else.' },
+    { icon: '📉', title: 'Missed Target', desc: 'Takes accountability publicly. Analyzes root cause. Presents a fix plan.' },
+    { icon: '🤝', title: 'Cross-Team Issue', desc: 'Reaches across org boundaries. "The customer doesn\'t care about our org chart."' },
+    { icon: '📊', title: 'Quarterly Planning', desc: 'Proposes ambitious goals that serve the company, even if risky for their team.' }
+  ],
+  renter: [
+    { icon: '🔧', title: 'Broken Process', desc: '"That\'s the platform team\'s problem." Emails someone and moves on.' },
+    { icon: '📉', title: 'Missed Target', desc: '"The dependency team was late." Points to external factors, no ownership.' },
+    { icon: '🤝', title: 'Cross-Team Issue', desc: '"Not my team\'s scope." Waits for escalation through management.' },
+    { icon: '📊', title: 'Quarterly Planning', desc: 'Sandbagging goals — aims low to guarantee hitting targets for promotion.' }
+  ],
+  insights: {
+    owner: '🔑 <strong>The Owner Test:</strong> Would you act differently if this were YOUR company and YOUR money? Owners never say "that\'s not my job" — because everything is their job.',
+    renter: '🏚️ <strong>The Renter Trap:</strong> Renters optimize locally and protect themselves. This feels safe short-term but kills long-term value. Amazon explicitly rejects this mindset.'
+  }
+};
+var ownerMode = 'owner';
+function ownerToggle(mode) {
+  ownerMode = mode;
+  var btns = document.querySelectorAll('.toggle-btn');
+  btns[0].classList.toggle('active', mode === 'owner');
+  btns[1].classList.toggle('active', mode === 'renter');
+  renderOwner();
+  addScore('owner_' + mode);
+}
+function renderOwner() {
+  var items = ownerData[ownerMode];
+  var html = '';
+  items.forEach(function(item) {
+    var borderClass = ownerMode === 'owner' ? 'card-success' : 'card-orange';
+    html += '<div class="card ' + borderClass + '" style="padding:16px;"><div style="font-size:1.5rem;margin-bottom:4px;">' + item.icon + '</div><h3 style="font-size:14px;margin-bottom:4px;">' + item.title + '</h3><p style="font-size:13px;color:var(--text-muted);">' + item.desc + '</p></div>';
+  });
+  document.getElementById('ownerGrid').innerHTML = html;
+  document.getElementById('ownerInsight').innerHTML = ownerData.insights[ownerMode];
+}
+slideInits[3] = function() { totalPossible += 2; setTotalPossible(totalPossible); renderOwner(); };
+
+/* --- SLIDE 5: INVENT AND SIMPLIFY (Editable Text) --- */
+var originalProposal = "We are proposing to build and develop a new, innovative, and cutting-edge customer-facing notification system that will fundamentally transform and revolutionize the way we communicate with and reach out to our valued customers and end users. This system will leverage and utilize advanced machine learning algorithms and artificial intelligence capabilities to intelligently and smartly determine the optimal and best timing and channel for each and every notification message. The implementation will require a cross-functional team of approximately 12-15 engineers working over the course of 6 months to deliver a minimum viable product that meets our quality standards. We believe this investment in resources and personnel will yield significant returns in terms of customer engagement metrics and satisfaction scores across all key performance indicators and business measurements.";
+function initSimplify() {
+  document.getElementById('simplifyArea').value = originalProposal;
+  var wc = originalProposal.split(/\s+/).filter(function(w){return w.length>0;}).length;
+  document.getElementById('origWordCount').textContent = wc;
+  document.getElementById('editTarget').textContent = ' (target: ≤' + Math.floor(wc * 0.6) + ')';
+  checkSimplify();
+}
+function checkSimplify() {
+  var text = document.getElementById('simplifyArea').value;
+  var wc = text.split(/\s+/).filter(function(w){return w.length>0;}).length;
+  document.getElementById('editWordCount').textContent = wc;
+}
+function submitSimplify() {
+  var text = document.getElementById('simplifyArea').value.trim();
+  var wc = text.split(/\s+/).filter(function(w){return w.length>0;}).length;
+  var origWc = originalProposal.split(/\s+/).filter(function(w){return w.length>0;}).length;
+  var reduction = ((origWc - wc) / origWc * 100).toFixed(0);
+  var el = document.getElementById('simplifyResult');
+  el.classList.remove('hidden');
+  if (wc <= origWc * 0.6 && text.length > 20) {
+    el.innerHTML = '<div class="insight insight-success">✅ <strong>Excellent!</strong> You reduced ' + reduction + '% of the words. Great leaders know that complexity is the enemy of execution. Jeff Bezos banned PowerPoint at Amazon — six-page memos force clarity of thought. Every unnecessary word is a tax on your reader\'s attention.</div>';
+    addScore('simplify_done', 2);
+  } else if (wc <= origWc * 0.8) {
+    el.innerHTML = '<div class="insight insight-teal">🔵 <strong>Good start!</strong> You cut ' + reduction + '%. Can you go further? Look for: redundant adjectives (new AND innovative AND cutting-edge), filler phrases ("in terms of"), and vague language ("approximately 12-15"). The best proposals are half the length with twice the clarity.</div>';
+    addScore('simplify_attempt');
+  } else {
+    el.innerHTML = '<div class="insight insight-error">⚠️ <strong>Keep simplifying!</strong> Only ' + reduction + '% reduction. Challenge every adjective, kill every redundancy. "Leverage and utilize"? Pick one. "New, innovative, and cutting-edge"? That\'s three words for the same idea. Simplification is a skill — practice it.</div>';
+  }
+}
+function resetSimplify() {
+  document.getElementById('simplifyArea').value = originalProposal;
+  document.getElementById('simplifyResult').classList.add('hidden');
+  checkSimplify();
+}
+slideInits[4] = function() { totalPossible += 2; setTotalPossible(totalPossible); initSimplify(); };
+
+/* --- SLIDE 6: ARE RIGHT A LOT (Dynamic SVG) --- */
+var svgStepDone = [false, false, false, false];
+function svgStep(step) {
+  var svg = document.getElementById('decisionSvg');
+  var explain = document.getElementById('svgExplain');
+  svgStepDone[step] = true;
+  // Enable next
+  for (var i = 0; i <= 3; i++) {
+    var btn = document.getElementById('svg-btn-' + i);
+    if (i <= step) { btn.classList.add('active'); btn.disabled = false; }
+    if (i === step + 1) btn.disabled = false;
+  }
+  if (step === 0) {
+    svg.innerHTML = '<rect x="250" y="130" width="200" height="80" rx="12" fill="none" stroke="#FF9900" stroke-width="2"/><text x="350" y="175" text-anchor="middle" fill="#FF9900" font-size="14" font-weight="bold">Your Belief</text><text x="350" y="195" text-anchor="middle" fill="#94a3b8" font-size="11">Confidence: 70%</text>';
+    explain.innerHTML = '🧠 <strong>Step 1:</strong> You start with a belief — but even good instincts are only ~70% reliable. Leaders who are right a lot <em>know</em> they might be wrong. The key is what you do next.';
+  } else if (step === 1) {
+    svg.innerHTML = '<circle cx="100" cy="80" r="35" fill="none" stroke="#00A8E1" stroke-width="2"/><text x="100" y="78" text-anchor="middle" fill="#00A8E1" font-size="11" font-weight="bold">Engineer</text><text x="100" y="93" text-anchor="middle" fill="#94a3b8" font-size="10">Technical</text><circle cx="100" cy="260" r="35" fill="none" stroke="#34d399" stroke-width="2"/><text x="100" y="258" text-anchor="middle" fill="#34d399" font-size="11" font-weight="bold">Customer</text><text x="100" y="273" text-anchor="middle" fill="#94a3b8" font-size="10">Needs</text><circle cx="600" cy="80" r="35" fill="none" stroke="#fbbf24" stroke-width="2"/><text x="600" y="78" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">Finance</text><text x="600" y="93" text-anchor="middle" fill="#94a3b8" font-size="10">Business</text><circle cx="600" cy="260" r="35" fill="none" stroke="#f87171" stroke-width="2"/><text x="600" y="258" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">Skeptic</text><text x="600" y="273" text-anchor="middle" fill="#94a3b8" font-size="10">Devil\'s Advocate</text><rect x="250" y="130" width="200" height="80" rx="12" fill="none" stroke="#FF9900" stroke-width="2"/><text x="350" y="175" text-anchor="middle" fill="#FF9900" font-size="14" font-weight="bold">Your Belief</text><line x1="135" y1="80" x2="250" y2="155" stroke="#00A8E1" stroke-width="1" stroke-dasharray="4"/><line x1="135" y1="260" x2="250" y2="195" stroke="#34d399" stroke-width="1" stroke-dasharray="4"/><line x1="565" y1="80" x2="450" y2="155" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4"/><line x1="565" y1="260" x2="450" y2="195" stroke="#f87171" stroke-width="1" stroke-dasharray="4"/>';
+    explain.innerHTML = '👥 <strong>Step 2:</strong> Seek <em>diverse</em> perspectives — not just from people who agree with you. Engineers, customers, finance, skeptics. Each brings a different lens. This is what "strong judgment and good instincts" actually means: synthesizing multiple viewpoints.';
+  } else if (step === 2) {
+    svg.innerHTML = '<circle cx="100" cy="80" r="35" fill="none" stroke="#00A8E1" stroke-width="2"/><text x="100" y="78" text-anchor="middle" fill="#00A8E1" font-size="11" font-weight="bold">Engineer</text><text x="100" y="93" text-anchor="middle" fill="#94a3b8" font-size="10">✓ Feasible</text><circle cx="100" cy="260" r="35" fill="none" stroke="#34d399" stroke-width="2"/><text x="100" y="258" text-anchor="middle" fill="#34d399" font-size="11" font-weight="bold">Customer</text><text x="100" y="273" text-anchor="middle" fill="#94a3b8" font-size="10">✓ Wanted</text><circle cx="600" cy="80" r="35" fill="none" stroke="#fbbf24" stroke-width="2"/><text x="600" y="78" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">Finance</text><text x="600" y="93" text-anchor="middle" fill="#94a3b8" font-size="10">⚠ Costly</text><circle cx="600" cy="260" r="35" fill="none" stroke="#f87171" stroke-width="2"/><text x="600" y="258" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">Skeptic</text><text x="600" y="273" text-anchor="middle" fill="#94a3b8" font-size="10">✗ Flaw Found</text><rect x="250" y="130" width="200" height="80" rx="12" fill="none" stroke="#FF9900" stroke-width="2" stroke-dasharray="6"/><text x="350" y="165" text-anchor="middle" fill="#FF9900" font-size="14" font-weight="bold">Your Belief</text><text x="350" y="185" text-anchor="middle" fill="#f87171" font-size="11">Challenged!</text><text x="350" y="200" text-anchor="middle" fill="#94a3b8" font-size="10">Confidence: 50%</text><line x1="135" y1="80" x2="250" y2="155" stroke="#00A8E1" stroke-width="1.5"/><line x1="135" y1="260" x2="250" y2="195" stroke="#34d399" stroke-width="1.5"/><line x1="565" y1="80" x2="450" y2="155" stroke="#fbbf24" stroke-width="1.5"/><line x1="565" y1="260" x2="450" y2="195" stroke="#f87171" stroke-width="2"/>';
+    explain.innerHTML = '🔍 <strong>Step 3:</strong> Actively <em>disconfirm</em> your beliefs. The skeptic found a flaw. Finance flagged costs. Your confidence dropped from 70% to 50% — and that\'s a GOOD thing. Leaders who are right a lot don\'t cling to their initial belief. They update based on evidence.';
+  } else if (step === 3) {
+    svg.innerHTML = '<circle cx="100" cy="80" r="35" fill="none" stroke="#00A8E1" stroke-width="2"/><text x="100" y="78" text-anchor="middle" fill="#00A8E1" font-size="11" font-weight="bold">Engineer</text><circle cx="100" cy="260" r="35" fill="none" stroke="#34d399" stroke-width="2"/><text x="100" y="258" text-anchor="middle" fill="#34d399" font-size="11" font-weight="bold">Customer</text><circle cx="600" cy="80" r="35" fill="none" stroke="#fbbf24" stroke-width="2"/><text x="600" y="78" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">Finance</text><circle cx="600" cy="260" r="35" fill="none" stroke="#f87171" stroke-width="2"/><text x="600" y="258" text-anchor="middle" fill="#f87171" font-size="11" font-weight="bold">Skeptic</text><rect x="220" y="120" width="260" height="100" rx="12" fill="rgba(52,211,153,0.1)" stroke="#34d399" stroke-width="2"/><text x="350" y="155" text-anchor="middle" fill="#34d399" font-size="14" font-weight="bold">Refined Decision</text><text x="350" y="175" text-anchor="middle" fill="#e2e8f0" font-size="11">Incorporates all feedback</text><text x="350" y="195" text-anchor="middle" fill="#34d399" font-size="11">Confidence: 90%</text><text x="350" y="212" text-anchor="middle" fill="#94a3b8" font-size="10">Stronger than the original</text><line x1="135" y1="80" x2="220" y2="155" stroke="#00A8E1" stroke-width="1.5"/><line x1="135" y1="260" x2="220" y2="195" stroke="#34d399" stroke-width="1.5"/><line x1="565" y1="80" x2="480" y2="155" stroke="#fbbf24" stroke-width="1.5"/><line x1="565" y1="260" x2="480" y2="195" stroke="#f87171" stroke-width="1.5"/>';
+    explain.innerHTML = '✅ <strong>Step 4:</strong> The refined decision is <em>stronger</em> than the original because it survived challenge. Confidence is now 90% — built on evidence, not ego. This is the paradox: <strong>leaders who seek to prove themselves wrong end up being right more often</strong>.';
+  }
+  addScore('svg_step_' + step);
+}
+slideInits[5] = function() { totalPossible += 4; setTotalPossible(totalPossible); };
+
+/* --- SLIDE 7: LEARN AND BE CURIOUS (Progressive Reveal) --- */
+var learnData = [
+  { title: '🔍 Explore Broadly', desc: 'Curiosity starts with breadth. Read outside your domain. Amazon leaders are expected to explore new possibilities — not just optimize what exists. Bezos reads widely and encourages "wandering" as a strategy.', flywheel: 'Explore' },
+  { title: '🧪 Experiment Cheaply', desc: 'Turn curiosity into action with small, cheap experiments. Amazon runs thousands of experiments per year. Most fail — and that\'s the point. Each failure teaches something no meeting could.', flywheel: 'Experiment' },
+  { title: '📊 Measure Rigorously', desc: 'Every experiment produces data. Leaders who learn effectively measure outcomes honestly — even when the data contradicts their hypothesis. This is where "Are Right, A Lot" intersects with "Learn and Be Curious."', flywheel: 'Measure' },
+  { title: '🔄 Apply and Iterate', desc: 'Learning without application is entertainment. Apply what you\'ve learned, iterate based on results, and share knowledge across teams. This is how individual learning becomes organizational capability.', flywheel: 'Apply' },
+  { title: '🚀 Compound Growth', desc: 'The flywheel spins faster over time. Each cycle of explore→experiment→measure→apply makes the next cycle more productive. This is why Amazon\'s pace of innovation <em>accelerates</em> rather than slows with scale.', flywheel: 'Compound' }
+];
+function initLearn() {
+  var stepsEl = document.getElementById('learnSteps');
+  for (var i = 0; i < learnData.length; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'step-num';
+    btn.textContent = i + 1;
+    btn.setAttribute('data-step', i);
+    btn.onclick = (function(idx) { return function() { revealLearn(idx); }; })(i);
+    stepsEl.appendChild(btn);
+  }
+}
+var learnRevealed = -1;
+function revealLearn(idx) {
+  if (idx > learnRevealed + 1) return; // must go in order
+  learnRevealed = Math.max(learnRevealed, idx);
+  var steps = document.querySelectorAll('#learnSteps .step-num');
+  steps.forEach(function(s, i) {
+    s.classList.remove('active', 'done');
+    if (i < idx) s.classList.add('done');
+    if (i === idx) s.classList.add('active');
+  });
+  var d = learnData[idx];
+  document.getElementById('learnContent').innerHTML = '<h3 class="text-teal mb-8">' + d.title + '</h3><p style="font-size:14px;">' + d.desc + '</p>';
+  // Update flywheel SVG
+  updateFlywheel(idx);
+  addScore('learn_' + idx);
+}
+function updateFlywheel(activeIdx) {
+  var svg = document.getElementById('flywheelSvg');
+  var labels = ['Explore', 'Experiment', 'Measure', 'Apply', 'Compound'];
+  var colors = ['#00A8E1', '#34d399', '#fbbf24', '#FF9900', '#f87171'];
+  var cx = 150, cy = 150, r = 100;
+  var html = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,153,0,0.15)" stroke-width="4"/>';
+  for (var i = 0; i < 5; i++) {
+    var angle = (i * 72 - 90) * Math.PI / 180;
+    var x = cx + r * Math.cos(angle);
+    var y = cy + r * Math.sin(angle);
+    var active = i <= activeIdx;
+    var col = active ? colors[i] : 'rgba(100,116,139,0.4)';
+    html += '<circle cx="'+x+'" cy="'+y+'" r="'+(active?14:10)+'" fill="'+(active?col:'none')+'" stroke="'+col+'" stroke-width="2"/>';
+    html += '<text x="'+x+'" y="'+(y+30)+'" text-anchor="middle" fill="'+col+'" font-size="10" font-weight="'+(active?'bold':'normal')+'">'+labels[i]+'</text>';
+    if (active && i > 0) {
+      var prevAngle = ((i-1) * 72 - 90) * Math.PI / 180;
+      var px = cx + r * Math.cos(prevAngle);
+      var py = cy + r * Math.sin(prevAngle);
+      html += '<line x1="'+px+'" y1="'+py+'" x2="'+x+'" y2="'+y+'" stroke="'+colors[i-1]+'" stroke-width="2" stroke-dasharray="4"/>';
+    }
+  }
+  if (activeIdx >= 4) {
+    html += '<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" fill="var(--orange)" font-size="14" font-weight="bold">🔄</text>';
+  }
+  svg.innerHTML = html;
+}
+slideInits[6] = function() { totalPossible += 5; setTotalPossible(totalPossible); initLearn(); updateFlywheel(-1); };
+
+/* --- SLIDE 8: HIRE AND DEVELOP (Drag-and-Drop) --- */
+var hireItems = [
+  { id: 'h1', text: '🎯 Has shipped 3 products that scaled to 1M+ users', correct: 'hire' },
+  { id: 'h2', text: '📚 Quotes textbook answers but no real-world examples', correct: 'reject' },
+  { id: 'h3', text: '💡 Proposed a novel approach interviewer hadn\'t considered', correct: 'hire' },
+  { id: 'h4', text: '🏆 Consistently rated "meets expectations" (never exceeds)', correct: 'reject' },
+  { id: 'h5', text: '🔄 Led a team through a pivot based on customer data', correct: 'hire' },
+  { id: 'h6', text: '📋 Can describe processes well but never owned outcomes', correct: 'reject' },
+  { id: 'h7', text: '🌱 Actively mentored 3 junior engineers to promotion', correct: 'hire' },
+  { id: 'h8', text: '🎤 Impressive resume but blames others for failures', correct: 'reject' }
+];
+function initHire() {
+  var source = document.getElementById('hireSource');
+  // Shuffle
+  var shuffled = hireItems.slice().sort(function() { return Math.random() - 0.5; });
+  shuffled.forEach(function(item) {
+    var el = document.createElement('div');
+    el.className = 'drag-item';
+    el.draggable = true;
+    el.id = item.id;
+    el.textContent = item.text;
+    el.ondragstart = function(e) { e.dataTransfer.setData('text/plain', item.id); };
+    source.appendChild(el);
+  });
+}
+function hireDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('over'); }
+function hireDragLeave(e) { e.currentTarget.classList.remove('over'); }
+function hireDrop(e, zone) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('over');
+  var id = e.dataTransfer.getData('text/plain');
+  var el = document.getElementById(id);
+  if (el) {
+    e.currentTarget.appendChild(el);
+    el.classList.add('placed');
+  }
+}
+function checkHire() {
+  var hireZone = document.getElementById('dropHire');
+  var rejectZone = document.getElementById('dropReject');
+  var sourceZone = document.getElementById('hireSource');
+  if (sourceZone.children.length > 0) {
+    document.getElementById('hireResult').innerHTML = '<div class="insight insight-error">⚠️ Sort all candidates before checking!</div>';
+    document.getElementById('hireResult').classList.remove('hidden');
+    return;
+  }
+  var correctCount = 0;
+  hireItems.forEach(function(item) {
+    var el = document.getElementById(item.id);
+    var parent = el.parentElement.id;
+    var inCorrectZone = (item.correct === 'hire' && parent === 'dropHire') || (item.correct === 'reject' && parent === 'dropReject');
+    if (inCorrectZone) {
+      correctCount++;
+      el.style.borderColor = 'var(--success)';
+      el.style.background = 'var(--success-dim)';
+    } else {
+      el.style.borderColor = 'var(--error)';
+      el.style.background = 'var(--error-dim)';
+    }
+  });
+  var msg;
+  if (correctCount === 8) {
+    msg = '<div class="insight insight-success">✅ <strong>Perfect Bar Raiser!</strong> You correctly identified all signals. Key insight: Bar Raisers look for <em>evidence of impact</em> (shipped products, led pivots, mentored others) and reject <em>signals of mediocrity</em> (textbook answers, blame-shifting, "meets expectations" as a ceiling). Every hire should raise the bar.</div>';
+    addScore('hire_perfect', 3);
+  } else {
+    msg = '<div class="insight insight-teal">🔵 <strong>' + correctCount + '/8 correct.</strong> Remember: "Raises the bar" means this person would make the existing team <em>better</em>. Look for evidence of ownership, innovation, and developing others. "Meets expectations" is not bar-raising — it\'s maintaining the status quo.</div>';
+    addScore('hire_attempt');
+  }
+  document.getElementById('hireResult').innerHTML = msg;
+  document.getElementById('hireResult').classList.remove('hidden');
+}
+slideInits[7] = function() { totalPossible += 3; setTotalPossible(totalPossible); initHire(); };
+
+/* --- SLIDE 9: HIGHEST STANDARDS (Cycling Action Editor) --- */
+var cycleItemsData = [
+  { text: 'Unit test coverage at 95%', correct: 'keep', reason: 'High standards require thorough testing.' },
+  { text: 'Skip load testing to meet deadline', correct: 'remove', reason: 'Cutting quality for speed violates this principle. Defects will ship.' },
+  { text: 'Manual QA for critical user flows', correct: 'keep', reason: 'Automation catches patterns; human QA catches what users actually experience.' },
+  { text: '"Good enough" error messages', correct: 'modify', reason: 'Error messages are customer-facing. Make them clear and actionable.' },
+  { text: 'Accessibility audit completed', correct: 'keep', reason: 'Highest standards include standards for ALL users.' },
+  { text: 'Documentation marked "TODO: fill in later"', correct: 'remove', reason: 'Undocumented features create debt. If it launched, it needs docs.' },
+  { text: 'Performance benchmarks within 10% of target', correct: 'modify', reason: '10% off target is close but not there. Raise the bar — hit the target.' },
+  { text: 'Security review signed off', correct: 'keep', reason: 'Non-negotiable. Security is a highest-standard item.' }
+];
+var cycleStates = [];
+var cycleStateNames = ['keep', 'remove', 'modify'];
+function initCycle() {
+  var container = document.getElementById('cycleItems');
+  cycleItemsData.forEach(function(item, i) {
+    cycleStates[i] = 0;
+    var el = document.createElement('div');
+    el.className = 'cycle-item cycle-keep';
+    el.id = 'cycle-' + i;
+    el.onclick = function() { cycleCycle(i); };
+    el.innerHTML = '<span class="state-badge" id="cycle-badge-' + i + '">KEEP</span><span>' + item.text + '</span>';
+    container.appendChild(el);
+  });
+  updateCycleCounts();
+}
+function cycleCycle(idx) {
+  cycleStates[idx] = (cycleStates[idx] + 1) % 3;
+  var state = cycleStateNames[cycleStates[idx]];
+  var el = document.getElementById('cycle-' + idx);
+  el.className = 'cycle-item cycle-' + state;
+  var badge = document.getElementById('cycle-badge-' + idx);
+  badge.textContent = state.toUpperCase();
+  updateCycleCounts();
+}
+function updateCycleCounts() {
+  var counts = { keep: 0, remove: 0, modify: 0 };
+  cycleStates.forEach(function(s) { counts[cycleStateNames[s]]++; });
+  document.getElementById('keepCount').textContent = counts.keep;
+  document.getElementById('removeCount').textContent = counts.remove;
+  document.getElementById('modifyCount').textContent = counts.modify;
+}
+function checkCycle() {
+  var correct = 0;
+  cycleItemsData.forEach(function(item, i) {
+    var state = cycleStateNames[cycleStates[i]];
+    var el = document.getElementById('cycle-' + i);
+    if (state === item.correct) {
+      correct++;
+      el.style.boxShadow = '0 0 8px var(--success)';
+    } else {
+      el.style.boxShadow = '0 0 8px var(--error)';
+    }
+  });
+  var html;
+  if (correct === 8) {
+    html = '<div class="insight insight-success">✅ <strong>Perfect review!</strong> You know what "unreasonably high standards" looks like:<br>';
+    cycleItemsData.forEach(function(item) {
+      html += '• <strong>' + item.correct.toUpperCase() + '</strong> — ' + item.text + ': ' + item.reason + '<br>';
+    });
+    html += '</div>';
+    addScore('cycle_perfect', 3);
+  } else {
+    html = '<div class="insight insight-teal">🔵 <strong>' + correct + '/8 correct.</strong> Here\'s the breakdown:<br>';
+    cycleItemsData.forEach(function(item) {
+      html += '• <strong>' + item.correct.toUpperCase() + '</strong> — ' + item.text + ': ' + item.reason + '<br>';
+    });
+    html += '</div>';
+    addScore('cycle_attempt');
+  }
+  document.getElementById('cycleResult').innerHTML = html;
+  document.getElementById('cycleResult').classList.remove('hidden');
+}
+slideInits[8] = function() { totalPossible += 3; setTotalPossible(totalPossible); initCycle(); };
+
+/* --- SLIDE 10: THINK BIG (Slider/Scale) --- */
+var thinkBigData = [
+  { problem: 'Customers complain about slow page load times on the product detail page.', solution: 'Optimize a few database queries to shave 200ms off load time.', bars: [15, 10, 10, 5, 5], insight: '🐜 This is a bug fix, not thinking big. It addresses a symptom without questioning the system.' },
+  { problem: 'Our product pages are slower than competitors, affecting conversion rates.', solution: 'Rebuild the frontend with modern architecture. Target sub-1-second loads.', bars: [30, 25, 25, 20, 15], insight: '📦 Better — you\'re thinking about competitive position. But you\'re still within the existing paradigm.' },
+  { problem: 'The entire e-commerce experience is built around page loads. What if it didn\'t have to be?', solution: 'Build a predictive pre-loading system that anticipates what customers will click next.', bars: [55, 40, 45, 50, 60], insight: '🔬 Now you\'re innovating. You\'re questioning a fundamental assumption about how e-commerce works.' },
+  { problem: 'Why do customers need to browse at all? They know what they want.', solution: 'Create an anticipatory shipping system — start moving products before customers even order.', bars: [75, 60, 70, 80, 85], insight: '🚀 This is real Think Big territory. Amazon actually patented anticipatory shipping in 2014.' },
+  { problem: 'What if the entire concept of "ordering" is friction? What if products just appeared when needed?', solution: 'Build an ambient commerce platform — IoT + AI that automatically replenishes and delivers before you run out.', bars: [100, 90, 100, 100, 100], insight: '🌕 Moonshot thinking. This reimagines the entire customer relationship. Dash buttons → Subscribe & Save → Alexa → ambient commerce. Each step removed friction.' }
+];
+function updateThinkBig(val) {
+  var idx = parseInt(val);
+  var d = thinkBigData[idx];
+  document.getElementById('thinkProblemText').textContent = d.problem;
+  document.getElementById('thinkSolutionText').textContent = d.solution;
+  document.getElementById('thinkInsight').innerHTML = d.insight;
+  var barsEl = document.getElementById('thinkBars');
+  var colors = ['#00A8E1', '#34d399', '#fbbf24', '#FF9900', '#f87171'];
+  barsEl.innerHTML = '';
+  d.bars.forEach(function(h, i) {
+    var bar = document.createElement('div');
+    bar.className = 'scale-bar';
+    bar
